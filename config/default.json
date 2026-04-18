@@ -1,0 +1,50 @@
+{
+  "server": {
+    "port": 3000,
+    "host": "0.0.0.0"
+  },
+  "rateLimit": {
+    "page": {
+      "windowMs": 60000,
+      "max": 30,
+      "_comment": "30 page requests per minute per IP"
+    },
+    "api": {
+      "windowMs": 60000,
+      "max": 60,
+      "_comment": "60 API requests per minute per IP"
+    }
+  },
+  "database": {
+    "autoUpdate": true,
+    "checkIntervalMs": 86400000,
+    "_comment": "checkIntervalMs: 86400000 = 24 hours",
+    "sources": {
+      "city_ipv4": {
+        "url": "https://cdn.jsdelivr.net/npm/@ip-location-db/dbip-city-mmdb/dbip-city-ipv4.mmdb",
+        "file": "dbip-city-ipv4.mmdb",
+        "package": "@ip-location-db/dbip-city-mmdb",
+        "path": "dbip-city-ipv4.mmdb"
+      },
+      "city_ipv6": {
+        "url": "https://cdn.jsdelivr.net/npm/@ip-location-db/dbip-city-mmdb/dbip-city-ipv6.mmdb",
+        "file": "dbip-city-ipv6.mmdb",
+        "package": "@ip-location-db/dbip-city-mmdb",
+        "path": "dbip-city-ipv6.mmdb"
+      },
+      "asn": {
+        "url": "https://cdn.jsdelivr.net/npm/@ip-location-db/asn-mmdb/asn.mmdb",
+        "file": "asn.mmdb",
+        "package": "@ip-location-db/asn-mmdb",
+        "path": "asn.mmdb"
+      }
+    },
+    "githubRepo": "sapics/ip-location-db",
+    "dataDir": "./data"
+  },
+  "i18n": {
+    "defaultLocale": "en",
+    "supportedLocales": ["en", "zh-CN", "zh-TW", "ja"]
+  }
+}
+

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IP-Du · IP Address Intelligence</title>
+  <meta name="description" content="Free IP address geolocation lookup. Instantly find the location, ISP, ASN and network details for any IPv4/IPv6 address or domain name." />
+  <meta name="keywords" content="IP lookup, IP geolocation, IP address, IPv4, IPv6, DNS lookup, ISP, ASN, IP location" />
+  <meta name="author" content="IP-Du" />
+  <meta property="og:title" content="IP-Du · IP Address Intelligence" />
+  <meta property="og:description" content="Free IP geolocation lookup for any IPv4/IPv6 address or domain." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────────────── */
+    :root {
+      --bg:            #060c1a;
+      --bg-2:          #0d1733;
+      --card:          rgba(13, 23, 51, 0.7);
+      --card-hover:    rgba(13, 23, 51, 0.9);
+      --border:        rgba(56, 189, 248, 0.12);
+      --border-hover:  rgba(56, 189, 248, 0.3);
+      --accent:        #38bdf8;
+      --accent-2:      #818cf8;
+      --accent-g:      linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      --accent-g-r:    linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
+      --text:          #e2e8f0;
+      --text-dim:      #94a3b8;
+      --text-muted:    #475569;
+      --success:       #34d399;
+      --warning:       #fbbf24;
+      --error:         #f87171;
+      --blur:          blur(24px);
+      --radius:        20px;
+      --radius-sm:     10px;
+      --radius-xs:     6px;
+      --shadow:        0 20px 60px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3);
+      --shadow-card:   0 4px 30px rgba(56,189,248,.05);
+      --transition:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    [data-theme="light"] {
+      --bg:            #f0f4ff;
+      --bg-2:          #e8eeff;
+      --card:          rgba(255, 255, 255, 0.75);
+      --card-hover:    rgba(255, 255, 255, 0.95);
+      --border:        rgba(99, 102, 241, 0.15);
+      --border-hover:  rgba(99, 102, 241, 0.4);
+      --accent:        #0284c7;
+      --accent-2:      #6366f1;
+      --accent-g:      linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+      --text:          #0f172a;
+      --text-dim:      #475569;
+      --text-muted:    #94a3b8;
+      --shadow:        0 20px 60px rgba(99,102,241,.12), 0 4px 16px rgba(0,0,0,.06);
+      --shadow-card:   0 4px 30px rgba(99,102,241,.08);
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    /* ─── Animated Background ───────────────────────────────────── */
+    .bg-layer {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .bg-orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.18;
+      animation: orb-drift 12s ease-in-out infinite alternate;
+    }
+    .bg-orb-1 { width: 60vw; height: 60vw; top: -20%; left: -15%;
+      background: radial-gradient(circle, #38bdf8, transparent 60%); }
+    .bg-orb-2 { width: 45vw; height: 45vw; bottom: -10%; right: -10%;
+      background: radial-gradient(circle, #818cf8, transparent 60%);
+      animation-delay: -6s; animation-direction: alternate-reverse; }
+    .bg-orb-3 { width: 30vw; height: 30vw; top: 50%; left: 50%;
+      background: radial-gradient(circle, #0ea5e9, transparent 60%);
+      animation-delay: -3s; }
+    [data-theme="light"] .bg-orb { opacity: 0.08; }
+    @keyframes orb-drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 20px) scale(1.05); }
+    }
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(56,189,248,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56,189,248,.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+    [data-theme="light"] .bg-grid {
+      background-image:
+        linear-gradient(rgba(99,102,241,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,102,241,.05) 1px, transparent 1px);
+    }
+
+    /* ─── Layout ────────────────────────────────────────────────── */
+    .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .container { max-width: 860px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+    /* ─── Navbar ────────────────────────────────────────────────── */
+    nav {
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(6, 12, 26, 0.6);
+      transition: background var(--transition);
+    }
+    [data-theme="light"] nav { background: rgba(240, 244, 255, 0.7); }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1100px; margin: 0 auto; padding: 0 24px;
+    }
+    .logo {
+      font-size: 1.5rem; font-weight: 800; text-decoration: none;
+      background: var(--accent-g); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .logo span { -webkit-text-fill-color: var(--text-dim); font-weight: 400; font-size: 0.8em; margin-left: 2px; }
+
+    .nav-controls { display: flex; align-items: center; gap: 10px; }
+
+    .lang-select {
+      appearance: none; background: var(--card); color: var(--text);
+      border: 1px solid var(--border); border-radius: var(--radius-xs);
+      padding: 6px 28px 6px 10px; font-size: 0.8rem; font-family: inherit;
+      cursor: pointer; outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2394a3b8' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 6px center; background-size: 14px;
+      transition: border-color var(--transition);
+    }
+    .lang-select:hover { border-color: var(--border-hover); }
+    .lang-select option { background: #1e293b; }
+    [data-theme="light"] .lang-select option { background: #fff; color: #0f172a; }
+
+    .icon-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: var(--radius-xs);
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--text-dim); cursor: pointer; transition: all var(--transition);
+    }
+    .icon-btn:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
+    .icon-btn svg { width: 16px; height: 16px; }
+
+    /* ─── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      padding: 72px 0 48px;
+      text-align: center;
+      animation: fade-up 0.6s ease both;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: 0.75rem; color: var(--accent); font-weight: 500;
+      margin-bottom: 24px; backdrop-filter: var(--blur);
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+    .hero-title-line1 {
+      display: block; background: var(--accent-g);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      color: var(--text-dim); font-size: 1.05rem; max-width: 520px;
+      margin: 0 auto 36px; line-height: 1.7;
+    }
+
+    /* ─── Search ────────────────────────────────────────────────── */
+    .search-wrap { position: relative; max-width: 600px; margin: 0 auto 12px; }
+    .search-bar {
+      display: flex; align-items: center;
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 100px; padding: 6px 6px 6px 22px;
+      backdrop-filter: var(--blur); box-shadow: var(--shadow-card);
+      transition: all var(--transition);
+    }
+    .search-bar:focus-within {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(56,189,248,.15), var(--shadow-card);
+    }
+    .search-icon { color: var(--text-muted); flex-shrink: 0; margin-right: 10px; }
+    .search-icon svg { width: 16px; height: 16px; }
+    .search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 0.95rem; font-family: 'JetBrains Mono', monospace;
+      min-width: 0;
+    }
+    .search-input::placeholder { color: var(--text-muted); font-family: 'Inter', sans-serif; }
+    .search-btn {
+      flex-shrink: 0; background: var(--accent-g);
+      border: none; border-radius: 100px; padding: 10px 22px;
+      color: #fff; font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all var(--transition);
+    }
+    .search-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+    .search-btn:active { transform: none; }
+    .search-hint { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+    /* ─── Result Card ───────────────────────────────────────────── */
+    .result-section { padding: 8px 0 48px; }
+    .result-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 32px;
+      backdrop-filter: var(--blur); box-shadow: var(--shadow-card);
+      animation: fade-up 0.5s ease both;
+      transition: border-color var(--transition);
+    }
+    .result-card:hover { border-color: var(--border-hover); }
+    .result-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .result-ip-block { display: flex; flex-direction: column; gap: 8px; }
+    .result-label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .result-ip {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      font-weight: 600; color: var(--text);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .ip-badge {
+      font-size: 0.65rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 100px; letter-spacing: 0.05em;
+    }
+    .ip-badge.v4 {
+      background: rgba(56,189,248,.15); color: var(--accent);
+      border: 1px solid rgba(56,189,248,.25);
+    }
+    .ip-badge.v6 {
+      background: rgba(129,140,248,.15); color: var(--accent-2);
+      border: 1px solid rgba(129,140,248,.25);
+    }
+    .result-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 7px 14px;
+      color: var(--text-dim); font-size: 0.8rem; font-family: inherit;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .copy-btn:hover { border-color: var(--border-hover); color: var(--accent); }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+    .copy-btn svg { width: 13px; height: 13px; }
+
+    .map-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 7px 14px;
+      color: var(--text-dim); font-size: 0.8rem; font-family: inherit;
+      text-decoration: none; transition: all var(--transition);
+    }
+    .map-btn:hover { border-color: var(--border-hover); color: var(--accent-2); }
+    .map-btn svg { width: 13px; height: 13px; }
+
+    /* Country display */
+    .result-location {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+      padding-bottom: 24px; border-bottom: 1px solid var(--border);
+    }
+    .country-flag { font-size: 2.4rem; line-height: 1; }
+    .country-name { font-size: 1.1rem; font-weight: 600; }
+    .city-name    { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+
+    /* Data grid */
+    .data-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 16px;
+    }
+    .data-item { display: flex; flex-direction: column; gap: 5px; }
+    .data-key {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .data-val {
+      font-size: 0.9rem; font-weight: 500; color: var(--text);
+      word-break: break-all;
+    }
+    .data-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+    .data-val.empty { color: var(--text-muted); font-style: italic; }
+
+    /* ─── Loading Skeleton ──────────────────────────────────────── */
+    .skeleton-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 32px;
+      backdrop-filter: var(--blur);
+      animation: fade-up 0.4s ease both;
+    }
+    .skeleton { border-radius: 6px; background: var(--border); animation: shimmer 1.5s infinite; }
+    .sk-title { height: 12px; width: 60px; margin-bottom: 12px; }
+    .sk-ip    { height: 28px; width: 220px; margin-bottom: 20px; }
+    .sk-loc   { height: 40px; width: 180px; margin-bottom: 20px; }
+    .sk-grid  { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+    .sk-item  { height: 40px; border-radius: 8px; }
+    @keyframes shimmer {
+      0%,100% { opacity: 0.5; } 50% { opacity: 1; }
+    }
+
+    /* ─── Error Card ────────────────────────────────────────────── */
+    .error-card {
+      background: rgba(248,113,113,.06); border: 1px solid rgba(248,113,113,.2);
+      border-radius: var(--radius); padding: 24px 28px;
+      display: flex; align-items: center; gap: 14px;
+      animation: fade-up 0.4s ease both;
+    }
+    .error-icon { font-size: 1.8rem; }
+    .error-text h3 { font-size: 0.95rem; font-weight: 600; color: var(--error); margin-bottom: 4px; }
+    .error-text p  { font-size: 0.82rem; color: var(--text-dim); }
+
+    /* ─── API Docs ───────────────────────────────────────────────── */
+    .api-section { padding: 0 0 64px; }
+    .section-title {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .api-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); backdrop-filter: var(--blur);
+      overflow: hidden; transition: border-color var(--transition);
+    }
+    .api-card:hover { border-color: var(--border-hover); }
+    .api-card-header {
+      padding: 20px 28px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; cursor: pointer;
+      user-select: none;
+    }
+    .api-card-header-left { display: flex; align-items: center; gap: 12px; }
+    .method-badge {
+      background: rgba(52,211,153,.15); color: var(--success);
+      border: 1px solid rgba(52,211,153,.25);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      font-weight: 700; padding: 4px 10px; border-radius: var(--radius-xs);
+      letter-spacing: 0.05em;
+    }
+    .endpoint-text {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;
+      color: var(--text);
+    }
+    .toggle-icon { color: var(--text-muted); transition: transform var(--transition); }
+    .toggle-icon.open { transform: rotate(180deg); }
+    .toggle-icon svg { width: 16px; height: 16px; }
+
+    .api-body { padding: 24px 28px; display: none; }
+    .api-body.open { display: block; animation: fade-up 0.25s ease both; }
+
+    .params-table {
+      width: 100%; border-collapse: collapse; font-size: 0.82rem;
+      margin-bottom: 24px;
+    }
+    .params-table th {
+      text-align: left; padding: 8px 12px;
+      background: rgba(56,189,248,.04); border-bottom: 1px solid var(--border);
+      color: var(--text-muted); font-weight: 600; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .params-table th:first-child { border-radius: var(--radius-xs) 0 0 0; }
+    .params-table th:last-child  { border-radius: 0 var(--radius-xs) 0 0; }
+    .params-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .params-table tr:last-child td { border-bottom: none; }
+    .param-name { font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+    .param-type { color: var(--accent-2); font-size: 0.75rem; }
+
+    .code-block {
+      background: rgba(0,0,0,.3); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 16px 20px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+      color: var(--text-dim); line-height: 1.7; overflow-x: auto;
+      white-space: pre; margin-bottom: 16px;
+      position: relative;
+    }
+    [data-theme="light"] .code-block { background: rgba(240,244,255,.6); }
+    .code-copy-btn {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--bg-2); border: 1px solid var(--border);
+      border-radius: var(--radius-xs); padding: 4px 10px;
+      color: var(--text-muted); font-size: 0.7rem; cursor: pointer;
+      font-family: inherit; transition: all var(--transition);
+    }
+    .code-copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    .rate-info {
+      font-size: 0.78rem; color: var(--text-muted);
+      padding: 10px 14px; background: rgba(251,191,36,.06);
+      border: 1px solid rgba(251,191,36,.15); border-radius: var(--radius-xs);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .rate-info::before { content: '⚡'; }
+
+    /* ─── Footer ────────────────────────────────────────────────── */
+    footer {
+      margin-top: auto; padding: 28px 0;
+      border-top: 1px solid var(--border);
+      text-align: center; color: var(--text-muted); font-size: 0.78rem;
+    }
+    footer a { color: var(--text-dim); text-decoration: none; transition: color var(--transition); }
+    footer a:hover { color: var(--accent); }
+    .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ─── Animations ────────────────────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .anim-delay-1 { animation-delay: 0.1s; }
+    .anim-delay-2 { animation-delay: 0.2s; }
+    .anim-delay-3 { animation-delay: 0.3s; }
+
+    /* ─── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .hero { padding: 48px 0 32px; }
+      .result-card, .skeleton-card { padding: 20px; }
+      .result-header { flex-direction: column; gap: 12px; }
+      .result-actions { width: 100%; }
+      .copy-btn, .map-btn { flex: 1; justify-content: center; }
+      .data-grid { grid-template-columns: repeat(2, 1fr); }
+      .sk-grid { grid-template-columns: repeat(2, 1fr); }
+      .api-body { padding: 16px; }
+      .nav-inner { padding: 0 16px; }
+    }
+    @media (max-width: 380px) {
+      .data-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-layer">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <div class="app">
+    <!-- ── Navbar ────────────────────────────────────────────── -->
+    <nav>
+      <div class="nav-inner">
+        <a href="/" class="logo" id="logo-link">IP-Du <span>Beta</span></a>
+        <div class="nav-controls">
+          <select class="lang-select" id="lang-select" aria-label="Language">
+            <option value="en">🌐 EN</option>
+            <option value="zh-CN">🇨🇳 中文</option>
+            <option value="zh-TW">🇹🇼 繁中</option>
+            <option value="ja">🇯🇵 日本語</option>
+          </select>
+          <button class="icon-btn" id="theme-btn" title="Toggle theme">
+            <svg id="theme-icon-dark" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+            </svg>
+            <svg id="theme-icon-light" viewBox="0 0 20 20" fill="currentColor" style="display:none">
+              <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Main ──────────────────────────────────────────────── -->
+    <main class="container">
+
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-badge" id="hero-badge">IP Intelligence</div>
+        <h1>
+          <span class="hero-title-line1" id="hero-line1">Discover Your IP</span>
+          <span id="hero-line2">Intelligence</span>
+        </h1>
+        <p class="hero-subtitle" id="hero-subtitle">
+          Instantly find the location, ISP, and network details of any IPv4/IPv6 address or domain name.
+        </p>
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <form class="search-bar" id="search-form" role="search" autocomplete="off">
+            <span class="search-icon">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+              </svg>
+            </span>
+            <input
+              type="text" id="search-input" class="search-input"
+              placeholder="e.g. 8.8.8.8 or google.com"
+              aria-label="IP address or domain"
+              spellcheck="false"
+            />
+            <button type="submit" class="search-btn" id="search-btn">Look Up</button>
+          </form>
+          <p class="search-hint" id="search-hint">Supports IPv4, IPv6, and domain names</p>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section class="result-section" id="result-section">
+        <!-- Populated by JS -->
+      </section>
+
+      <!-- API Docs -->
+      <section class="api-section">
+        <div class="section-title" id="api-title-label">API Reference</div>
+        <div class="api-card">
+          <div class="api-card-header" id="api-toggle">
+            <div class="api-card-header-left">
+              <span class="method-badge">GET</span>
+              <span class="endpoint-text">/api/lookup</span>
+            </div>
+            <span class="toggle-icon" id="api-toggle-icon">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+            </span>
+          </div>
+          <div class="api-body" id="api-body">
+            <table class="params-table" id="api-params-table">
+              <thead>
+                <tr>
+                  <th id="th-param">Parameter</th>
+                  <th id="th-type">Type</th>
+                  <th id="th-required">Required</th>
+                  <th id="th-desc">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="param-name">q</span></td>
+                  <td><span class="param-type">string</span></td>
+                  <td id="td-optional">Optional</td>
+                  <td id="td-q-desc">IP address or domain to look up. Omit to look up the client's own IP.</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <p class="data-key" style="margin-bottom:8px" id="api-example-label">Example Response</p>
+            <div class="code-block" id="example-code" style="position:relative">
+<button class="code-copy-btn" id="copy-example-btn">Copy</button><span id="example-json">{
+  "ip": "8.8.8.8",
+  "version": "IPv4",
+  "city": "Mountain View",
+  "region": "California",
+  "country": "United States",
+  "countryCode": "US",
+  "continent": "NA",
+  "lat": 37.386,
+  "lon": -122.0838,
+  "timezone": "America/Los_Angeles",
+  "asn": "AS15169",
+  "org": "Google LLC",
+  "isp": "Google LLC",
+  "source": "mmdb",
+  "query": "8.8.8.8",
+  "queryType": "ip"
+}</span></div>
+
+            <div class="rate-info" id="rate-info">
+              Rate limit: 60 requests/min for API · 30 requests/min for page
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ── Footer ─────────────────────────────────────────────── -->
+    <footer>
+      <div class="container">
+        <div id="footer-powered">Powered by <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> &amp; <strong>IP-Du</strong></div>
+        <div class="footer-links">
+          <a href="https://github.com/du-sonnedu/ip-du" target="_blank" rel="noopener" id="footer-github">GitHub</a>
+          <a href="/api/lookup" target="_blank" id="footer-api">API</a>
+          <a href="/api/health" target="_blank" id="footer-health">Health</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ── i18n ────────────────────────────────────────────────────────
+    const LOCALES = {
+      en: {
+        badge: 'Live IP Intelligence',
+        line1: 'Discover Your',
+        line2: 'IP Intelligence',
+        subtitle: 'Instantly find the location, ISP, and network details of any IPv4/IPv6 address or domain name.',
+        placeholder: 'e.g. 8.8.8.8 or google.com',
+        searchBtn: 'Look Up',
+        searchHint: 'Supports IPv4, IPv6, and domain names',
+        myIp: 'Your IP Address',
+        result: 'Lookup Result',
+        detecting: 'Detecting your location…',
+        searching: 'Looking up…',
+        copy: 'Copy', copied: 'Copied!',
+        mapBtn: 'Map',
+        noData: 'N/A',
+        errorTitle: 'Lookup Failed',
+        errorInvalid: 'Please enter a valid IP address or domain name.',
+        fields: {
+          ip: 'IP Address', version: 'IP Version', country: 'Country',
+          region: 'Region', city: 'City', timezone: 'Timezone',
+          coordinates: 'Coordinates', asn: 'ASN', org: 'Organization', isp: 'ISP',
+        },
+        apiTitle: 'API Reference',
+        thParam: 'Parameter', thType: 'Type', thRequired: 'Required', thDesc: 'Description',
+        tdOptional: 'Optional',
+        tdQDesc: 'IP address or domain to look up. Omit to look up the client\'s own IP.',
+        apiExampleLabel: 'Example Response',
+        rateInfo: 'Rate limit: 60 requests/min for API · 30 requests/min for page',
+        footerPowered: 'Powered by <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> &amp; <strong>IP-Du</strong>',
+        footerGithub: 'GitHub', footerApi: 'API', footerHealth: 'Health',
+      },
+      'zh-CN': {
+        badge: '实时 IP 情报',
+        line1: '解析您的', line2: 'IP 地址情报',
+        subtitle: '即时查询任意 IPv4/IPv6 地址或域名的归属地、运营商及网络信息。',
+        placeholder: '如 8.8.8.8 或 google.com',
+        searchBtn: '查询', searchHint: '支持 IPv4、IPv6 及域名',
+        myIp: '您的 IP 地址', result: '查询结果',
+        detecting: '正在检测您的位置…', searching: '查询中…',
+        copy: '复制', copied: '已复制！',
+        mapBtn: '地图',
+        noData: '暂无',
+        errorTitle: '查询失败', errorInvalid: '请输入有效的 IP 地址或域名。',
+        fields: {
+          ip: 'IP 地址', version: 'IP 版本', country: '国家 / 地区',
+          region: '省份 / 地区', city: '城市', timezone: '时区',
+          coordinates: '坐标', asn: 'ASN', org: '组织', isp: '运营商',
+        },
+        apiTitle: 'API 文档',
+        thParam: '参数', thType: '类型', thRequired: '是否必填', thDesc: '说明',
+        tdOptional: '可选',
+        tdQDesc: '要查询的 IP 地址或域名，不填则默认查询请求方 IP。',
+        apiExampleLabel: '返回示例',
+        rateInfo: '频率限制：API 每分钟 60 次 · 页面每分钟 30 次',
+        footerPowered: '数据来源 <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a>，由 <strong>IP-Du</strong> 提供服务',
+        footerGithub: 'GitHub', footerApi: 'API', footerHealth: '健康检查',
+      },
+      'zh-TW': {
+        badge: '即時 IP 情報',
+        line1: '解析您的', line2: 'IP 位址情報',
+        subtitle: '即時查詢任意 IPv4/IPv6 位址或網域的位置、ISP 及網路資訊。',
+        placeholder: '如 8.8.8.8 或 google.com',
+        searchBtn: '查詢', searchHint: '支援 IPv4、IPv6 及網域名稱',
+        myIp: '您的 IP 位址', result: '查詢結果',
+        detecting: '正在偵測您的位置…', searching: '查詢中…',
+        copy: '複製', copied: '已複製！',
+        mapBtn: '地圖',
+        noData: '暫無',
+        errorTitle: '查詢失敗', errorInvalid: '請輸入有效的 IP 位址或網域名稱。',
+        fields: {
+          ip: 'IP 位址', version: 'IP 版本', country: '國家 / 地區',
+          region: '縣市 / 地區', city: '城市', timezone: '時區',
+          coordinates: '座標', asn: 'ASN', org: '組織', isp: 'ISP',
+        },
+        apiTitle: 'API 文件',
+        thParam: '參數', thType: '類型', thRequired: '是否必填', thDesc: '說明',
+        tdOptional: '選填',
+        tdQDesc: '要查詢的 IP 位址或網域，不填則預設查詢請求方 IP。',
+        apiExampleLabel: '回應範例',
+        rateInfo: '頻率限制：API 每分鐘 60 次 · 頁面每分鐘 30 次',
+        footerPowered: '資料來源 <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a>，由 <strong>IP-Du</strong> 提供服務',
+        footerGithub: 'GitHub', footerApi: 'API', footerHealth: '健康狀態',
+      },
+      ja: {
+        badge: 'リアルタイム IP インテリジェンス',
+        line1: 'IPアドレスを', line2: '解析する',
+        subtitle: 'IPv4/IPv6 アドレスやドメイン名の場所・ISP・ネットワーク情報を即座に確認できます。',
+        placeholder: '例: 8.8.8.8 または google.com',
+        searchBtn: '検索', searchHint: 'IPv4、IPv6、ドメイン名に対応',
+        myIp: 'あなたのIPアドレス', result: '検索結果',
+        detecting: '位置を検出中…', searching: '検索中…',
+        copy: 'コピー', copied: 'コピー済み！',
+        mapBtn: 'マップ',
+        noData: 'N/A',
+        errorTitle: '検索失敗', errorInvalid: '有効なIPアドレスまたはドメインを入力してください。',
+        fields: {
+          ip: 'IPアドレス', version: 'IPバージョン', country: '国',
+          region: '地域', city: '都市', timezone: 'タイムゾーン',
+          coordinates: '座標', asn: 'ASN', org: '組織', isp: 'ISP',
+        },
+        apiTitle: 'API ドキュメント',
+        thParam: 'パラメータ', thType: '型', thRequired: '必須', thDesc: '説明',
+        tdOptional: '任意',
+        tdQDesc: '検索するIPアドレスまたはドメイン名。省略した場合はクライアントIPを使用。',
+        apiExampleLabel: 'レスポンス例',
+        rateInfo: 'レート制限: API 毎分60回 · ページ 毎分30回',
+        footerPowered: '<a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> データ提供、<strong>IP-Du</strong> で運用',
+        footerGithub: 'GitHub', footerApi: 'API', footerHealth: 'ヘルスチェック',
+      },
+    };
+
+    // ── Theme ───────────────────────────────────────────────────────
+    const html = document.documentElement;
+    let theme = localStorage.getItem('ipdu-theme') ||
+      (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+
+    function applyTheme(t) {
+      theme = t;
+      html.setAttribute('data-theme', t);
+      const isDark = t === 'dark';
+      document.getElementById('theme-icon-dark').style.display  = isDark ? '' : 'none';
+      document.getElementById('theme-icon-light').style.display = isDark ? 'none' : '';
+      localStorage.setItem('ipdu-theme', t);
+    }
+    applyTheme(theme);
+
+    document.getElementById('theme-btn').addEventListener('click', () => {
+      applyTheme(theme === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Language ────────────────────────────────────────────────────
+    const storedLang = localStorage.getItem('ipdu-lang');
+    const navLang = (storedLang || navigator.language || 'en').replace('_','-');
+    let lang = Object.keys(LOCALES).find(k => navLang.startsWith(k.split('-')[0]) && LOCALES[k]) || 'en';
+    if (storedLang && LOCALES[storedLang]) lang = storedLang;
+
+    const langSelect = document.getElementById('lang-select');
+    langSelect.value = lang;
+
+    function t() { return LOCALES[lang] || LOCALES.en; }
+
+    function applyLocale() {
+      const L = t();
+      document.documentElement.lang = lang;
+      document.getElementById('hero-badge').textContent    = L.badge;
+      document.getElementById('hero-line1').textContent    = L.line1;
+      document.getElementById('hero-line2').textContent    = L.line2;
+      document.getElementById('hero-subtitle').textContent = L.subtitle;
+      document.getElementById('search-input').placeholder  = L.placeholder;
+      document.getElementById('search-btn').textContent    = L.searchBtn;
+      document.getElementById('search-hint').textContent   = L.searchHint;
+      document.getElementById('api-title-label').childNodes[0].textContent = L.apiTitle + ' ';
+      document.getElementById('th-param').textContent      = L.thParam;
+      document.getElementById('th-type').textContent       = L.thType;
+      document.getElementById('th-required').textContent   = L.thRequired;
+      document.getElementById('th-desc').textContent       = L.thDesc;
+      document.getElementById('td-optional').textContent   = L.tdOptional;
+      document.getElementById('td-q-desc').textContent     = L.tdQDesc;
+      document.getElementById('api-example-label').textContent = L.apiExampleLabel;
+      document.getElementById('rate-info').textContent     = L.rateInfo;
+      document.getElementById('footer-powered').innerHTML  = L.footerPowered;
+      document.getElementById('footer-github').textContent = L.footerGithub;
+      document.getElementById('footer-api').textContent    = L.footerApi;
+      document.getElementById('footer-health').textContent = L.footerHealth;
+      document.title = 'IP-Du · ' + L.line2;
+    }
+    applyLocale();
+
+    langSelect.addEventListener('change', (e) => {
+      lang = e.target.value;
+      localStorage.setItem('ipdu-lang', lang);
+      applyLocale();
+      if (lastResult) renderResult(lastResult, lastIsMyIp);
+    });
+
+    // ── Flag emoji ──────────────────────────────────────────────────
+    function flagEmoji(code) {
+      if (!code || code.length !== 2) return '🌐';
+      return String.fromCodePoint(
+        ...code.toUpperCase().split('').map(c => 0x1F1E6 + c.charCodeAt(0) - 65)
+      );
+    }
+
+    // ── Country name lookup ─────────────────────────────────────────
+    const COUNTRY_ZH = { CN:'中国', US:'美国', JP:'日本', GB:'英国', DE:'德国', FR:'法国', CA:'加拿大', AU:'澳大利亚', KR:'韩国', SG:'新加坡', HK:'香港', TW:'台湾', RU:'俄罗斯', IN:'印度', BR:'巴西', MX:'墨西哥', NL:'荷兰', IT:'意大利', ES:'西班牙', SE:'瑞典', NO:'挪威', CH:'瑞士', PL:'波兰', TR:'土耳其', SA:'沙特阿拉伯', AE:'阿联酋', ZA:'南非', NG:'尼日利亚', EG:'埃及', AR:'阿根廷', CL:'智利', CO:'哥伦比亚', PH:'菲律宾', VN:'越南', TH:'泰国', ID:'印度尼西亚', MY:'马来西亚', PK:'巴基斯坦', BD:'孟加拉国', UA:'乌克兰', PL:'波兰' };
+
+    function localizedCountry(data) {
+      if (!data.countryCode) return data.country || t().noData;
+      if (lang === 'zh-CN' && COUNTRY_ZH[data.countryCode]) return COUNTRY_ZH[data.countryCode];
+      return data.country || data.countryCode || t().noData;
+    }
+
+    // ── Render helpers ──────────────────────────────────────────────
+    function dataField(label, value, mono) {
+      const val = (value !== null && value !== undefined && value !== '')
+        ? `<span class="data-val${mono ? ' mono' : ''}">${escHtml(String(value))}</span>`
+        : `<span class="data-val empty">${t().noData}</span>`;
+      return `<div class="data-item"><span class="data-key">${escHtml(label)}</span>${val}</div>`;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    let lastResult  = null;
+    let lastIsMyIp  = false;
+
+    function renderLoading(isSearch) {
+      const L = t();
+      document.getElementById('result-section').innerHTML = `
+        <div class="skeleton-card">
+          <div class="skeleton sk-title"></div>
+          <div class="skeleton sk-ip"></div>
+          <div class="skeleton sk-loc" style="margin-bottom:24px"></div>
+          <div class="sk-grid">
+            <div class="skeleton sk-item"></div>
+            <div class="skeleton sk-item"></div>
+            <div class="skeleton sk-item"></div>
+            <div class="skeleton sk-item"></div>
+          </div>
+        </div>`;
+    }
+
+    function renderError(msg) {
+      document.getElementById('result-section').innerHTML = `
+        <div class="error-card" role="alert">
+          <div class="error-icon">⚠️</div>
+          <div class="error-text">
+            <h3>${escHtml(t().errorTitle)}</h3>
+            <p>${escHtml(msg)}</p>
+          </div>
+        </div>`;
+    }
+
+    function renderResult(data, isMyIp) {
+      lastResult = data;
+      lastIsMyIp = isMyIp;
+      const L = t();
+
+      const versionClass = data.version === 'IPv6' ? 'v6' : 'v4';
+      const coords = (data.lat && data.lon)
+        ? `${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}`
+        : null;
+      const mapUrl = (data.lat && data.lon)
+        ? `https://www.google.com/maps?q=${data.lat},${data.lon}`
+        : null;
+      const countryDisp = localizedCountry(data);
+      const cityRegion  = [data.city, data.region].filter(Boolean).join(', ') || null;
+
+      document.getElementById('result-section').innerHTML = `
+        <div class="result-card" role="region" aria-label="IP lookup result">
+          <div class="result-header">
+            <div class="result-ip-block">
+              <span class="result-label">${isMyIp ? L.myIp : L.result}</span>
+              <div class="result-ip">
+                <span id="ip-display">${escHtml(data.ip || '—')}</span>
+                ${data.version ? `<span class="ip-badge ${versionClass}">${escHtml(data.version)}</span>` : ''}
+              </div>
+            </div>
+            <div class="result-actions">
+              <button class="copy-btn" id="copy-ip-btn" title="${escHtml(L.copy)} IP">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                </svg>
+                <span id="copy-ip-label">${escHtml(L.copy)}</span>
+              </button>
+              ${mapUrl ? `<a class="map-btn" href="${escHtml(mapUrl)}" target="_blank" rel="noopener" title="View on map">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                </svg>
+                ${escHtml(L.mapBtn)}
+              </a>` : ''}
+            </div>
+          </div>
+
+          <div class="result-location">
+            <div class="country-flag" aria-hidden="true">${flagEmoji(data.countryCode)}</div>
+            <div>
+              <div class="country-name">${escHtml(countryDisp)}</div>
+              ${cityRegion ? `<div class="city-name">${escHtml(cityRegion)}</div>` : ''}
+            </div>
+          </div>
+
+          <div class="data-grid">
+            ${dataField(L.fields.city,        data.city)}
+            ${dataField(L.fields.region,      data.region)}
+            ${dataField(L.fields.timezone,    data.timezone)}
+            ${dataField(L.fields.coordinates, coords, true)}
+            ${dataField(L.fields.asn,         data.asn, true)}
+            ${dataField(L.fields.isp,         data.isp)}
+            ${dataField(L.fields.org,         data.org)}
+            ${dataField(L.fields.version,     data.version)}
+          </div>
+        </div>`;
+
+      // Copy IP button
+      document.getElementById('copy-ip-btn').addEventListener('click', () => {
+        copyText(data.ip, 'copy-ip-btn', 'copy-ip-label', L.copy, L.copied);
+      });
+    }
+
+    function copyText(text, btnId, labelId, origLabel, doneLabel) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn   = document.getElementById(btnId);
+        const label = document.getElementById(labelId);
+        if (btn)   btn.classList.add('copied');
+        if (label) label.textContent = doneLabel;
+        setTimeout(() => {
+          if (btn)   btn.classList.remove('copied');
+          if (label) label.textContent = origLabel;
+        }, 2000);
+      });
+    }
+
+    // ── API Calls ───────────────────────────────────────────────────
+    async function fetchLookup(query) {
+      const url = query ? `/api/lookup?q=${encodeURIComponent(query)}` : '/api/lookup';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    // Auto-detect client IP on load
+    async function detectMyIp() {
+      renderLoading(false);
+      try {
+        const data = await fetchLookup(null);
+        renderResult(data, true);
+      } catch (err) {
+        renderError(err.message);
+      }
+    }
+
+    // Search form
+    document.getElementById('search-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) { detectMyIp(); return; }
+      renderLoading(true);
+      try {
+        const data = await fetchLookup(query);
+        renderResult(data, false);
+      } catch (err) {
+        renderError(err.message);
+      }
+    });
+
+    // ── API Docs toggle ─────────────────────────────────────────────
+    document.getElementById('api-toggle').addEventListener('click', () => {
+      const body = document.getElementById('api-body');
+      const icon = document.getElementById('api-toggle-icon');
+      const open = body.classList.toggle('open');
+      icon.classList.toggle('open', open);
+    });
+
+    // Copy example JSON
+    document.getElementById('copy-example-btn').addEventListener('click', () => {
+      const L = t();
+      const text = document.getElementById('example-json').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-example-btn');
+        btn.textContent = L.copied;
+        setTimeout(() => { btn.textContent = L.copy; }, 2000);
+      });
+    });
+
+    // ── Init ────────────────────────────────────────────────────────
+    detectMyIp();
+  })();
+  </script>
+</body>
+</html>

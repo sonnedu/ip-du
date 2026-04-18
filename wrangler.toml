@@ -1,0 +1,43 @@
+# wrangler.toml — Cloudflare Workers deployment configuration
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name            = "ip-du"
+main            = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── Production Custom Domain ─────────────────────────────────────
+# Serves the Worker at ip.du.dev
+[[routes]]
+pattern  = "ip.du.dev/*"
+zone_name = "du.dev"
+
+# ─── R2 Bucket (MMDB database storage) ───────────────────────────
+# Create with: npx wrangler r2 bucket create ip-du-db
+# Upload MMDB:  npm run update-db && npm run upload-r2
+[[r2_buckets]]
+binding     = "DB_BUCKET"
+bucket_name = "ip-du-db"
+
+# ─── Rate Limit Environment Variables ────────────────────────────
+# Override defaults via Cloudflare dashboard → Workers → Settings → Variables
+[vars]
+RATE_LIMIT_PAGE_WINDOW = "60000"
+RATE_LIMIT_PAGE_MAX    = "30"
+RATE_LIMIT_API_WINDOW  = "60000"
+RATE_LIMIT_API_MAX     = "60"
+
+# ─── Wrangler Text Module Rule ────────────────────────────────────
+# Allows importing HTML files as text strings in worker.js:
+#   import appHtml from './views/index.html';
+[[rules]]
+type  = "Text"
+globs = ["**/*.html"]
+
+# ─── Build ────────────────────────────────────────────────────────
+[build]
+command = ""
+
+# ─── Development ──────────────────────────────────────────────────
+# Run locally: npx wrangler dev src/worker.js
+# Logs live at: http://127.0.0.1:8787/__scheduled

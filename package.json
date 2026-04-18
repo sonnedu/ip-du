@@ -1,0 +1,38 @@
+{
+  "name": "ip-du",
+  "version": "1.0.0",
+  "description": "IP-Du — A premium IP address geolocation platform with dual deployment support for Cloudflare Workers and Node.js",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev":        "node --watch src/server.js",
+    "dev:node":   "node --watch src/server.js",
+    "dev:cf":     "wrangler dev src/worker.js",
+    "start":      "node src/server.js",
+    "deploy:cf":  "wrangler deploy",
+    "update-db":  "node scripts/update-db.js",
+    "upload-r2":  "node scripts/upload-r2.js"
+  },
+  "keywords": [
+    "ip",
+    "geolocation",
+    "ip-lookup",
+    "geoip",
+    "cloudflare-workers",
+    "ipv4",
+    "ipv6"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "hono": "^4.7.5",
+    "mmdb-lib": "^2.1.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.14.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
