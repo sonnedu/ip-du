@@ -883,7 +883,7 @@
         ? `${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}`
         : null;
       const mapUrl = (data.lat && data.lon)
-        ? `https://www.google.com/maps?q=${data.lat},${data.lon}`
+        ? `https://www.bing.com/maps?cp=${data.lat}~${data.lon}&lvl=13`
         : null;
       const countryDisp = data.country || data.countryCode || L.noData;
       const cityRegion  = [data.city, data.region].filter(Boolean).join(', ') || null;
