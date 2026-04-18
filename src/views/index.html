@@ -841,12 +841,7 @@
     }
     applyLocale();
 
-    langSelect.addEventListener('change', (e) => {
-      lang = e.target.value;
-      localStorage.setItem('ipdu-lang', lang);
-      applyLocale();
-      if (lastResult) renderResult(lastResult, lastIsMyIp);
-    });
+
 
     // ── Flag emoji ──────────────────────────────────────────────────
     function flagEmoji(code) {
