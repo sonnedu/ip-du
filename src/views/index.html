@@ -40,7 +40,10 @@
       --blur:          blur(20px);
       --radius:        16px;
       --radius-sm:     12px;
+      --radius-xs:     8px;
+      --border-hover:  rgba(56, 189, 248, 0.45);
       --shadow:        0 8px 32px rgba(0, 0, 0, 0.4);
+      --shadow-card:   0 4px 20px rgba(0, 0, 0, 0.2);
       --transition:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     [data-theme="light"] {
@@ -50,6 +53,8 @@
       --card-deep:     rgba(255, 255, 255, 0.95);
       --border:        rgba(148, 163, 184, 0.2);
       --border-light:  rgba(2, 132, 199, 0.2);
+      --border-hover:  rgba(2, 132, 199, 0.45);
+      --radius-xs:     8px;
       --text:          #0f172a;
       --text-dim:      #475569;
       --text-muted:    #94a3b8;
@@ -196,50 +201,245 @@
     .icon-btn:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
     .icon-btn svg { width: 16px; height: 16px; }
 
-    /* ─── Nebula Layout ───────────────────────────────────────── */
-    .nebula-grid {
+    /* ─── Result Layout ──────────────────────────────────────────── */
+    .result-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 24px;
-      margin-top: 32px;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+      margin-top: 28px;
+      animation: fade-up 0.5s ease both;
     }
-    .nebula-card {
+    .result-main { display: flex; flex-direction: column; gap: 16px; }
+
+    /* IP Hero Card */
+    .ip-hero-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 0;
       overflow: hidden;
       backdrop-filter: var(--blur);
-      transition: all var(--transition);
+      transition: border-color var(--transition);
+      position: relative;
     }
-    .nebula-card:hover { border-color: var(--border-light); }
-    .nebula-header {
-      padding: 16px 24px;
+    .ip-hero-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent-g);
+    }
+    .ip-hero-card:hover { border-color: var(--border-light); }
+    .ip-hero-inner {
+      padding: 28px 28px 24px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .ip-flag {
+      font-size: 3.8rem; line-height: 1; flex-shrink: 0;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+    .ip-hero-info { flex: 1; min-width: 0; }
+    .ip-hero-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;
+    }
+    .ip-hero-addr {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+      font-weight: 700; color: var(--text);
+      letter-spacing: -0.5px; line-height: 1.1;
+      word-break: break-all;
+    }
+    .ip-hero-loc {
+      margin-top: 8px; font-size: 0.95rem; font-weight: 500;
+      color: var(--text-dim); display: flex; align-items: center; gap: 6px;
+    }
+    .ip-hero-loc::before { content: '📍'; font-size: 0.8rem; }
+    .ip-hero-badges {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .ip-hero-actions { margin-left: auto; display: flex; gap: 8px; }
+
+    /* Net Info Card */
+    .net-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: var(--blur);
+      transition: border-color var(--transition);
+    }
+    .net-card:hover { border-color: var(--border-light); }
+    .net-card-header {
+      padding: 14px 24px;
       border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      font-size: 0.75rem; font-weight: 700; color: var(--text-dim);
-      text-transform: uppercase; letter-spacing: 0.1em;
     }
-    .nebula-body { padding: 24px; }
-
-    .identity-box { display: flex; align-items: flex-start; gap: 24px; }
-    .ip-display {
-      font-family: 'JetBrains Mono', monospace; font-size: 3rem; font-weight: 800;
-      line-height: 1; letter-spacing: -2px;
+    .net-card-title {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+      display: flex; align-items: center; gap: 8px;
     }
-    .profile-meta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .net-card-title-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 6px var(--accent);
+    }
+    .net-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .net-cell {
+      padding: 18px 20px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 6px;
+      transition: background var(--transition);
+    }
+    .net-cell:hover { background: rgba(56,189,248,0.03); }
+    .net-cell:nth-child(3n) { border-right: none; }
+    .net-cell:nth-last-child(-n+3) { border-bottom: none; }
 
-    .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
-    .stat-card {
-      background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);
-      padding: 16px; border: 1px solid var(--border);
+    /* Sidebar cards */
+    .result-sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .risk-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      backdrop-filter: var(--blur);
+      transition: border-color var(--transition);
+    }
+    .risk-card:hover { border-color: var(--border-light); }
+    .risk-card-head {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .risk-body { padding: 24px 20px; }
+    .risk-gauge-wrap {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+    }
+    .risk-gauge-ring {
+      width: 72px; height: 72px; flex-shrink: 0;
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .risk-gauge-ring svg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
+    .risk-gauge-ring circle {
+      fill: none; stroke-width: 6; stroke-linecap: round;
+    }
+    .risk-ring-bg { stroke: rgba(255,255,255,0.06); }
+    .risk-ring-fill { transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
+    .risk-gauge-num {
+      font-size: 1.5rem; font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1; position: relative; z-index: 1;
+    }
+    .risk-gauge-info { flex: 1; }
+    .risk-level-label {
+      font-size: 1rem; font-weight: 700; margin-bottom: 4px;
+    }
+    .risk-level-sub { font-size: 0.78rem; color: var(--text-dim); }
+    .risk-bar-track {
+      height: 5px; background: rgba(255,255,255,0.06);
+      border-radius: 10px; overflow: hidden; margin-bottom: 16px;
+    }
+    .risk-bar-fill {
+      height: 100%; border-radius: 10px;
+      transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .risk-factors-list { display: flex; flex-direction: column; gap: 7px; }
+    .risk-factor-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 0.78rem; color: var(--text-dim);
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+    .risk-factor-icon { flex-shrink: 0; margin-top: 1px; }
+    .risk-clean {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.8rem; font-weight: 600; color: var(--success);
+      padding: 10px 12px;
+      background: rgba(16,185,129,0.06);
+      border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 10px;
     }
 
-    @media (max-width: 850px) {
-      .nebula-grid { grid-template-columns: 1fr; gap: 16px; }
-      .ip-display { font-size: clamp(1.5rem, 8vw, 2.5rem); letter-spacing: -1px; }
-      .identity-box { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
-      .stat-row { grid-template-columns: 1fr; gap: 16px; }
+    /* Shared data item */
+    .data-item { display: flex; flex-direction: column; gap: 5px; }
+    .data-key {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .data-val {
+      font-size: 0.88rem; font-weight: 500; color: var(--text);
+      word-break: break-word;
+    }
+    .data-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
+    .data-val.empty { color: var(--text-muted); font-style: italic; }
+
+    /* Badges */
+    .badge-group { display: flex; gap: 7px; flex-wrap: wrap; }
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 100px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+      color: var(--text-dim);
+    }
+    .type-badge.v4 { color: var(--accent); border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.06); }
+    .type-badge.v6 { color: var(--accent-2); border-color: rgba(129,140,248,0.3); background: rgba(129,140,248,0.06); }
+    .type-badge.idc { color: var(--warning); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.06); }
+    .type-badge.residential { color: var(--success); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.06); }
+    .type-badge.mobile { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+    .type-badge.native { color: var(--accent); border-color: rgba(56,189,248,0.3); background: rgba(56,189,248,0.06); }
+
+    /* Copy button */
+    .copy-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 10px; padding: 7px 14px;
+      color: var(--text-dim); font-size: 0.8rem; font-family: inherit;
+      cursor: pointer; transition: all var(--transition);
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.06); }
+    .copy-btn.copied { color: var(--success); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+    .copy-btn svg { width: 13px; height: 13px; }
+
+    /* Map link */
+    .map-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; font-weight: 600; color: var(--accent-2);
+      text-decoration: none; transition: opacity var(--transition);
+      padding: 5px 0;
+    }
+    .map-link:hover { opacity: 0.8; }
+    .map-link svg { width: 12px; height: 12px; }
+
+    /* Responsive */
+    @media (max-width: 780px) {
+      .result-grid { grid-template-columns: 1fr; gap: 16px; }
+      .ip-hero-inner { gap: 14px; padding: 20px; }
+      .ip-flag { font-size: 3rem; }
+      .ip-hero-addr { font-size: clamp(1.1rem, 5vw, 1.8rem); }
+      .ip-hero-badges { padding: 12px 20px; }
+      .ip-hero-actions { margin-left: 0; width: 100%; }
+      .ip-hero-actions .copy-btn { flex: 1; justify-content: center; }
+      .net-grid { grid-template-columns: repeat(2, 1fr); }
+      .net-cell:nth-child(3n) { border-right: 1px solid var(--border); }
+      .net-cell:nth-child(2n) { border-right: none; }
+      .net-cell:nth-last-child(-n+3) { border-bottom: 1px solid var(--border); }
+      .net-cell:nth-last-child(-n+2) { border-bottom: none; }
+    }
+    @media (max-width: 420px) {
+      .net-grid { grid-template-columns: 1fr; }
+      .net-cell { border-right: none !important; }
+      .net-cell:last-child { border-bottom: none !important; }
     }
 
     /* ─── Hero ──────────────────────────────────────────────────── */
@@ -288,125 +488,6 @@
     .search-btn:hover { transform: translateY(-1px); opacity: 0.9; }
     .search-btn:active { transform: none; }
     .search-hint { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
-
-    /* ─── Result Card ───────────────────────────────────────────── */
-    .result-section { padding: 8px 0 48px; }
-    .result-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 28px 32px;
-      backdrop-filter: var(--blur); box-shadow: var(--shadow-card);
-      animation: fade-up 0.5s ease both;
-      transition: border-color var(--transition);
-    }
-    .result-card:hover { border-color: var(--border-hover); }
-    .result-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
-    }
-    .result-ip-block { display: flex; flex-direction: column; gap: 8px; }
-    .result-label {
-      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--text-muted);
-    }
-    .result-ip {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(1.3rem, 3vw, 1.8rem);
-      font-weight: 600; color: var(--text);
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-    }
-    .ip-badge {
-      font-size: 0.65rem; font-weight: 700; padding: 3px 10px;
-      border-radius: 100px; letter-spacing: 0.05em;
-    }
-    .ip-badge.v4 {
-      background: rgba(56,189,248,.15); color: var(--accent);
-      border: 1px solid rgba(56,189,248,.25);
-    }
-    .ip-badge.v6 {
-      background: rgba(129,140,248,.15); color: var(--accent-2);
-      border: 1px solid rgba(129,140,248,.25);
-    }
-    .result-actions { display: flex; gap: 8px; flex-shrink: 0; }
-
-    .copy-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: transparent; border: 1px solid var(--border);
-      border-radius: var(--radius-xs); padding: 7px 14px;
-      color: var(--text-dim); font-size: 0.8rem; font-family: inherit;
-      cursor: pointer; transition: all var(--transition);
-    }
-    .copy-btn:hover { border-color: var(--border-hover); color: var(--accent); }
-    .copy-btn.copied { color: var(--success); border-color: var(--success); }
-    .copy-btn svg { width: 13px; height: 13px; }
-
-    .map-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: transparent; border: 1px solid var(--border);
-      border-radius: var(--radius-xs); padding: 7px 14px;
-      color: var(--text-dim); font-size: 0.8rem; font-family: inherit;
-      text-decoration: none; transition: all var(--transition);
-    }
-    .map-btn:hover { border-color: var(--border-hover); color: var(--accent-2); }
-    .map-btn svg { width: 13px; height: 13px; }
-
-    /* Country display */
-    .result-location {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
-      padding-bottom: 24px; border-bottom: 1px solid var(--border);
-    }
-    .country-flag { font-size: 2.4rem; line-height: 1; }
-    .country-name { font-size: 1.1rem; font-weight: 600; }
-    .city-name    { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
-
-    /* Data grid */
-    .data-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 16px; margin-bottom: 24px;
-    }
-    .data-item { display: flex; flex-direction: column; gap: 5px; }
-
-    /* ─── Security Section ───────────────────────────────────────── */
-    .security-section {
-      border-top: 1px solid var(--border);
-      padding-top: 24px;
-      display: flex; flex-direction: column; gap: 20px;
-    }
-    .security-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .risk-meter-wrap { flex: 1; max-width: 300px; display: flex; flex-direction: column; gap: 8px; }
-    .risk-meter-bg {
-      height: 8px; background: rgba(0,0,0,0.2); border-radius: 10px;
-      overflow: hidden; position: relative;
-    }
-    .risk-meter-bar {
-      height: 100%; transition: width 1s ease-out, background var(--transition);
-      border-radius: 10px;
-    }
-    .risk-score-text { font-size: 1.1rem; font-weight: 700; display: flex; align-items: baseline; gap: 4px; }
-    .risk-score-text span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
-
-    .badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .type-badge {
-      display: flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
-      border: 1px solid var(--border); background: var(--card);
-    }
-    .type-badge svg { width: 14px; height: 14px; }
-    .type-badge.idc { border-color: var(--warning); color: var(--warning); background: rgba(251,191,36,0.05); }
-    .type-badge.residential { border-color: var(--success); color: var(--success); background: rgba(52,211,153,0.05); }
-    .type-badge.native { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.05); }
-    .data-key {
-      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
-      text-transform: uppercase; color: var(--text-muted);
-    }
-    .data-val {
-      font-size: 0.9rem; font-weight: 500; color: var(--text);
-      word-break: break-all;
-    }
-    .data-val.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
-    .data-val.empty { color: var(--text-muted); font-style: italic; }
 
     /* ─── Loading Skeleton ──────────────────────────────────────── */
     .skeleton-card {
@@ -900,108 +981,122 @@
       const L = t();
 
       const versionClass = data.version === 'IPv6' ? 'v6' : 'v4';
+      const riskScore = data.risk ?? 0;
       const coords = (data.lat && data.lon)
         ? `${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}`
         : null;
       const mapUrl = (data.lat && data.lon)
-        ? `https://www.bing.com/maps?cp=${data.lat}~${data.lon}&lvl=13`
+        ? `https://www.openstreetmap.org/?mlat=${data.lat}&mlon=${data.lon}&zoom=10`
         : null;
-      const cityRegion  = [data.city, data.region].filter(Boolean).join(', ') || null;
+      const cityRegion = [data.city, data.region].filter(Boolean).join(', ') || null;
+      const riskColor = riskScore < 20 ? 'var(--success)' : riskScore < 55 ? 'var(--warning)' : 'var(--error)';
+      const riskLevel = riskScore < 20 ? 'Low' : riskScore < 55 ? 'Medium' : 'High';
+      // SVG ring: r=32, circumference ≈ 201
+      const circumference = 201;
+      const ringOffset = circumference - (riskScore / 100) * circumference;
+      const typeClass = data.type === 'Data Center' ? 'idc' : data.type === 'Mobile' ? 'mobile' : 'residential';
 
       document.getElementById('result-section').innerHTML = `
-        <div class="nebula-grid anim-delay-1">
-          <!-- Main Matrix -->
-          <div class="nebula-card">
-            <div class="nebula-header">
-              <span>Identity Matrix // ${escHtml(data.ip)}</span>
-              <div class="badge-group">
-                <span class="type-badge ${versionClass}">${escHtml(data.version)}</span>
-                <span class="type-badge ${data.type === 'Data Center' ? 'idc' : 'residential'}">
-                   ${escHtml(L.typeLabels[data.type] || data.type)}
-                </span>
-                ${data.isNative ? `<span class="type-badge native">${escHtml(L.nativeIp)}</span>` : ''}
-              </div>
-            </div>
-            <div class="nebula-body">
-              <div class="identity-box">
-                <div class="country-flag" style="font-size:4rem">${flagEmoji(data.countryCode)}</div>
-                <div style="flex:1">
-                  <div class="ip-display">${escHtml(data.ip)}</div>
-                  <div style="font-size:1.1rem; font-weight:600; color:var(--text-dim); margin-top:8px">
-                    ${escHtml(data.country || data.countryCode)} // ${escHtml(cityRegion || 'Unknown Region')}
-                  </div>
+        <div class="result-grid">
+          <!-- Left: main info -->
+          <div class="result-main">
+
+            <!-- IP Hero -->
+            <div class="ip-hero-card">
+              <div class="ip-hero-inner">
+                <div class="ip-flag">${flagEmoji(data.countryCode)}</div>
+                <div class="ip-hero-info">
+                  <div class="ip-hero-label">${isMyIp ? L.myIp : L.result}</div>
+                  <div class="ip-hero-addr">${escHtml(data.ip)}</div>
+                  <div class="ip-hero-loc">${escHtml([data.country, cityRegion].filter(Boolean).join(' · ') || 'Unknown Location')}</div>
                 </div>
-                <div class="result-actions">
-                  <button class="icon-btn" id="copy-ip-btn" style="width:auto; padding:0 16px; height:40px; font-weight:600">
+              </div>
+              <div class="ip-hero-badges">
+                <span class="type-badge ${versionClass}">${escHtml(data.version)}</span>
+                <span class="type-badge ${typeClass}">${escHtml(L.typeLabels[data.type] || data.type)}</span>
+                ${data.isNative ? `<span class="type-badge native">✦ ${escHtml(L.nativeIp)}</span>` : ''}
+                <div class="ip-hero-actions">
+                  <button class="copy-btn" id="copy-ip-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     <span id="copy-ip-label">${escHtml(L.copy)}</span>
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div class="stat-row">
-                 <div class="stat-card">
-                    <div class="data-key" style="margin-bottom:8px">Provider Intelligence</div>
-                    ${dataField(L.fields.isp, data.isp)}
-                    ${dataField(L.fields.org, data.org)}
-                    ${dataField(L.fields.asn, data.asn, true)}
-                 </div>
-                 <div class="stat-card">
-                    <div class="data-key" style="margin-bottom:8px">Temporal & Geogrid</div>
-                    ${dataField(L.fields.timezone, data.timezone)}
-                    ${dataField(L.fields.coordinates, coords, true)}
-                    <a href="${escHtml(mapUrl)}" target="_blank" class="map-btn" style="margin-top:12px; width:100%; justify-content:center">
+            <!-- Network Intel Grid -->
+            <div class="net-card">
+              <div class="net-card-header">
+                <div class="net-card-title">
+                  <span class="net-card-title-dot"></span>
+                  Network Intelligence
+                </div>
+              </div>
+              <div class="net-grid">
+                <div class="net-cell">${dataField(L.fields.isp, data.isp)}</div>
+                <div class="net-cell">${dataField(L.fields.org, data.org)}</div>
+                <div class="net-cell">${dataField(L.fields.asn, data.asn, true)}</div>
+                <div class="net-cell">${dataField(L.fields.country, data.country)}</div>
+                <div class="net-cell">${dataField(L.fields.timezone, data.timezone)}</div>
+                <div class="net-cell">
+                  ${coords ? `
+                    <span class="data-key">${escHtml(L.fields.coordinates)}</span>
+                    <span class="data-val mono">${escHtml(coords)}</span>
+                    ${mapUrl ? `<a href="${escHtml(mapUrl)}" target="_blank" class="map-link">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                       ${escHtml(L.mapBtn)}
-                    </a>
-                 </div>
+                    </a>` : ''}
+                  ` : dataField(L.fields.coordinates, null)}
+                </div>
               </div>
             </div>
+
           </div>
 
-          <!-- Sidebar Intelligence -->
-          <div style="display:flex; flex-direction:column; gap:24px">
-            <!-- Risk Gauge -->
-            <div class="nebula-card">
-              <div class="nebula-header">Risk Assessment</div>
-              <div class="nebula-body">
-                <div style="text-align:center; padding:10px 0">
-                   <div style="font-size:4rem; font-weight:800; color:${getRiskColor(data.risk)}; line-height:1">
-                     ${data.risk}
-                   </div>
-                   <div class="data-key" style="margin-top:8px">${L.riskLabel} / 100</div>
+          <!-- Right: risk sidebar -->
+          <div class="result-sidebar">
+            <div class="risk-card">
+              <div class="risk-card-head">${escHtml(L.securityTitle)}</div>
+              <div class="risk-body">
+                <div class="risk-gauge-wrap">
+                  <div class="risk-gauge-ring">
+                    <svg viewBox="0 0 72 72">
+                      <circle class="risk-ring-bg" cx="36" cy="36" r="32" />
+                      <circle class="risk-ring-fill" cx="36" cy="36" r="32"
+                        stroke="${riskColor}"
+                        stroke-dasharray="${circumference}"
+                        stroke-dashoffset="${ringOffset}" />
+                    </svg>
+                    <span class="risk-gauge-num" style="color:${riskColor}">${riskScore}</span>
+                  </div>
+                  <div class="risk-gauge-info">
+                    <div class="risk-level-label" style="color:${riskColor}">${riskLevel} Risk</div>
+                    <div class="risk-level-sub">${escHtml(L.riskLabel)} / 100</div>
+                  </div>
                 </div>
-                <div class="risk-meter-bg" style="margin-top:20px; height:6px">
-                   <div class="risk-meter-bar" style="width:${data.risk}%; background:${getRiskColor(data.risk)}"></div>
+                <div class="risk-bar-track">
+                  <div class="risk-bar-fill" style="width:${riskScore}%; background:${riskColor}"></div>
                 </div>
-                <div class="risk-reason-list" style="margin-top:24px">
-                   ${(data.riskFactors || []).map(f => `
-                     <div class="risk-reason-item" style="padding:10px; background:rgba(255,255,255,0.02); border-radius:8px">
-                       ${escHtml(L.factorLabels[f] || f)}
-                     </div>
-                   `).join('')}
-                   ${data.risk < 20 ? `<div class="risk-reason-item" style="color:var(--success)">✅ Verified Residential Signal</div>` : ''}
+                <div class="risk-factors-list">
+                  ${(data.riskFactors || []).map(f => `
+                    <div class="risk-factor-item">
+                      <span class="risk-factor-icon">⚑</span>
+                      <span>${escHtml(L.factorLabels[f] || f)}</span>
+                    </div>
+                  `).join('')}
+                  ${riskScore < 20 ? `
+                    <div class="risk-clean">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      Verified Residential Signal
+                    </div>
+                  ` : ''}
                 </div>
               </div>
-            </div>
-
-            <div class="nebula-card" style="opacity:0.6; pointer-events:none">
-               <div class="nebula-header">Network Tags</div>
-               <div class="nebula-body" style="display:flex; gap:8px; flex-wrap:wrap">
-                  <span class="type-badge">TLS_CLIENT</span>
-                  <span class="type-badge">TCP_MSS_MATCH</span>
-                  <span class="type-badge">MTU_NORMAL</span>
-               </div>
             </div>
           </div>
         </div>`;
 
-      // Risk color helper
-      function getRiskColor(score) {
-        if (score < 20) return 'var(--success)';
-        if (score < 50) return 'var(--warning)';
-        return 'var(--error)';
-      }
-
-      // Copy IP button
+      // Attach copy handler
       document.getElementById('copy-ip-btn').addEventListener('click', () => {
         copyText(data.ip, 'copy-ip-btn', 'copy-ip-label', L.copy, L.copied);
       });
