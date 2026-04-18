@@ -140,7 +140,6 @@ function formatMmdbResult(ip, city, asn) {
   let latitude    = city?.latitude;
   let longitude   = city?.longitude;
 
-  // MaxMind style fallback
   if (typeof cityName === 'object') cityName = cityName.names?.en;
   if (city?.subdivisions)          regionName = city.subdivisions[0]?.names?.en;
   if (city?.country)               countryCode = city.country.iso_code;
@@ -149,57 +148,65 @@ function formatMmdbResult(ip, city, asn) {
     longitude = city.location.longitude;
   }
 
-  // 2. Country Name fallback
   let countryName = city?.country?.names?.en || null;
   if (!countryName && countryCode) {
     const codes = { 'US': 'United States', 'CN': 'China', 'JP': 'Japan', 'TW': 'Taiwan', 'HK': 'Hong Kong', 'GB': 'United Kingdom', 'DE': 'Germany' };
     countryName = codes[countryCode] || countryCode;
   }
 
-  // 3. ASN/Organization
   const asnNumber = asn?.autonomous_system_number || city?.autonomous_system_number;
   const asnOrg    = asn?.autonomous_system_organization || city?.autonomous_system_organization;
 
-  // 4. IP Purity & Usage Type (Heuristic Model)
+  // 2. IP Purity v2.0 Engine
   let usageType = 'Residential';
   let riskScore = 0;
+  let riskFactors = [];
   const orgLower = (asnOrg || '').toLowerCase();
 
-  // More comprehensive IDC/Hosting Keywords
   const idcKeywords = [
     'cloud', 'hosting', 'datacenter', 'server', 'vps', 'amazon', 'google', 'microsoft', 'azure', 'digitalocean', 'linode', 'vultr', 'hetzner', 'ovh', 'oracle', 'alibaba', 'tencent', 'host', 'choopa', 'zenlayer',
-    'cdn', 'akamai', 'fastly', 'infrastructure', 'compute', 'network', 'telecom', 'communications', 'backbone', 'github', 'bitbucket', 'gitlab', 'heroku', 'netlify', 'vercel', 'scaleway', 'packet', 'equinix',
-    'leaseweb', 'clouvider', 'i3d', 'm247', 'fathom', 'quadranet', 'sharktech', 'psychz', 'cogent', 'hurricane', 'level3', 'tata', 'pccw', 'ntt', 'telia', 'retn', 'globenet', 'seacom', 'liquid', 'mainone',
-    'anonymous', 'proxy', 'vpn', 'dedicated', 'nodes', 'relay', 'tor', 'exit', 'service', 'solutions', 'technologies', 'bandwidth'
+    'cdn', 'akamai', 'fastly', 'infrastructure', 'compute', 'network', 'telecom', 'communications', 'backbone', 'github', 'bitbucket', 'gitlab', 'heroku', 'netlify', 'vercel'
   ];
+  const proxyKeywords = ['proxy', 'vpn', 'anonymous', 'relay', 'tor', 'exit', 'mullvad', 'proton', 'windscribe', 'nordvpn', 'surfshark', 'expressvpn'];
+  const mobileKeywords = ['mobile', 'wireless', 'telekom', 'cellular', 'vodafone', 't-mobile', 'o2', 'telefonica', 'verizon', 'orange'];
 
-  // More comprehensive Mobile Keywords
-  const mobileKeywords = ['mobile', 'wireless', 'telekom', 'cellular', 'vodafone', 't-mobile', 'o2', 'telefonica', 'verizon', 'orange', 'china mobile', 'china unicom', 'unlimited'];
-
-  // Corporate Keywords
-  const corpKeywords = ['inc', 'corporation', 'corp', 'limited', 'ltd', 'company', 'office', 'branch', 'enterprise', 'technologies', 'solutions'];
-
+  // Rule 1: Hosting/IDC
   if (idcKeywords.some(k => orgLower.includes(k))) {
     usageType = 'Data Center';
-    riskScore = 55 + Math.floor(Math.random() * 25);
-  } else if (mobileKeywords.some(k => orgLower.includes(k))) {
-    usageType = 'Mobile';
-    riskScore = 2 + Math.floor(Math.random() * 8);
-  } else if (orgLower.includes('university') || orgLower.includes('school') || orgLower.includes('college') || orgLower.includes('edu')) {
-    usageType = 'Education';
-    riskScore = 8;
-  } else if (corpKeywords.some(k => orgLower.includes(k)) && !orgLower.includes('telecom')) {
-    usageType = 'Business';
-    riskScore = 15 + Math.floor(Math.random() * 10);
+    riskScore += 55;
+    riskFactors.push('IDC_KEYWORD_MATCH');
   }
 
-  // Bonus risk for data center + no city/region info
+  // Rule 2: Proxy/VPN
+  if (proxyKeywords.some(k => orgLower.includes(k))) {
+    usageType = 'Business';
+    riskScore += 30;
+    riskFactors.push('PROXY_VPN_KEYWORD');
+  }
+
+  // Rule 3: Mobile/Education
+  if (mobileKeywords.some(k => orgLower.includes(k))) {
+    usageType = 'Mobile';
+  } else if (orgLower.includes('university') || orgLower.includes('school')) {
+    usageType = 'Education';
+  }
+
+  // Rule 4: Geodata anomalies
   if (usageType === 'Data Center' && !cityName) {
     riskScore += 15;
+    riskFactors.push('MISSING_CITY_DATA');
   }
-  if (riskScore > 100) riskScore = 100;
 
-  // 5. Timezone Fix
+  // Rule 5: Generic Organization
+  if (orgLower === 'anonymous' || orgLower === 'private' || !asnOrg) {
+    riskScore += 10;
+    riskFactors.push('GENERIC_ORG_NAME');
+  }
+
+  if (riskScore > 100) riskScore = 100;
+  if (riskScore === 0 && usageType === 'Residential') riskScore = Math.floor(Math.random() * 5);
+
+  // 3. Timezone
   let timezone = city?.location?.time_zone || city?.timezone;
   if (!timezone && longitude !== undefined && longitude !== null) {
     const offset = Math.round(longitude / 15);
@@ -223,9 +230,8 @@ function formatMmdbResult(ip, city, asn) {
     isp:         asnOrg    || null,
     type:        usageType,
     risk:        riskScore,
+    riskFactors,
     isNative:    !!(countryCode && (cityName || regionName)),
     source:      'mmdb',
   };
 }
-
-

@@ -158,38 +158,58 @@
     .icon-btn:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
     .icon-btn svg { width: 16px; height: 16px; }
 
+    /* ─── Dashboard v2.0 ────────────────────────────────────────── */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .dash-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      backdrop-filter: var(--blur); transition: all var(--transition);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .dash-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .dash-card-title {
+      font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px;
+    }
+    .dash-card-title svg { width: 14px; height: 14px; opacity: 0.6; }
+
+    .result-ip-hero {
+      grid-column: span 3; padding: 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1.5px solid var(--border);
+    }
+    .ip-main { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 800; }
+
+    .risk-reason-list {
+      margin-top: 12px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .risk-reason-item {
+      font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px;
+    }
+    .risk-reason-item::before {
+      content: '•'; color: var(--error); font-weight: bold;
+    }
+
     /* ─── Hero ──────────────────────────────────────────────────── */
     .hero {
-      padding: 72px 0 48px;
+      padding: 60px 0 40px;
       text-align: center;
       animation: fade-up 0.6s ease both;
     }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 100px; padding: 5px 14px;
-      font-size: 0.75rem; color: var(--accent); font-weight: 500;
-      margin-bottom: 24px; backdrop-filter: var(--blur);
-    }
-    .hero-badge::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--accent);
-      animation: pulse-dot 2s ease infinite;
-    }
-    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
     h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
-      margin-bottom: 16px;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800; line-height: 1.2; letter-spacing: -1px;
+      margin-bottom: 24px;
     }
-    .hero-title-line1 {
-      display: block; background: var(--accent-g);
+    .hero-title-g {
+      background: var(--accent-g);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
-    }
-    .hero-subtitle {
-      color: var(--text-dim); font-size: 1.05rem; max-width: 520px;
-      margin: 0 auto 36px; line-height: 1.7;
     }
 
     /* ─── Search ────────────────────────────────────────────────── */
@@ -502,24 +522,20 @@
   <div class="bg-grid"></div>
 
   <div class="app">
-    <!-- ── Navbar ────────────────────────────────────────────── -->
+    <!-- ── Navbar ───────────────────────────────────────── -->
     <nav>
       <div class="nav-inner">
-        <a href="/" class="logo" id="logo-link">IP-Du <span>Beta</span></a>
+        <a href="/" class="logo">IP-Du<span>.</span></a>
         <div class="nav-controls">
-          <select class="lang-select" id="lang-select" aria-label="Language">
-            <option value="en">🌐 EN</option>
-            <option value="zh-CN">🇨🇳 中文</option>
-            <option value="zh-TW">🇹🇼 繁中</option>
-            <option value="ja">🇯🇵 日本語</option>
+          <select class="lang-select" id="lang-select">
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
+            <option value="zh-TW">繁體中文</option>
+            <option value="ja">日本語</option>
           </select>
-          <button class="icon-btn" id="theme-btn" title="Toggle theme">
-            <svg id="theme-icon-dark" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
-            </svg>
-            <svg id="theme-icon-light" viewBox="0 0 20 20" fill="currentColor" style="display:none">
-              <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
-            </svg>
+          <button class="icon-btn" id="theme-btn">
+            <svg id="theme-icon-dark" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+            <svg id="theme-icon-light" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 10-1.414 1.414l.707.707zM3 11a1 1 0 100-2H2a1 1 0 100 2h1z" clip-rule="evenodd"/></svg>
           </button>
         </div>
       </div>
@@ -530,14 +546,9 @@
 
       <!-- Hero -->
       <section class="hero">
-        <div class="hero-badge" id="hero-badge">IP Intelligence</div>
         <h1>
-          <span class="hero-title-line1" id="hero-line1">Discover Your IP</span>
-          <span id="hero-line2">Intelligence</span>
+          <span class="hero-title-g" id="hero-main-title">IP-Du: Intelligent IP & Domain Purity Hub</span>
         </h1>
-        <p class="hero-subtitle" id="hero-subtitle">
-          Instantly find the location, ISP, and network details of any IPv4/IPv6 address or domain name.
-        </p>
 
         <!-- Search -->
         <div class="search-wrap">
@@ -553,7 +564,7 @@
               aria-label="IP address or domain"
               spellcheck="false"
             />
-            <button type="submit" class="search-btn" id="search-btn">Look Up</button>
+            <button type="submit" class="search-btn" id="search-btn">Query</button>
           </form>
           <p class="search-hint" id="search-hint">Supports IPv4, IPv6, and domain names</p>
         </div>
@@ -649,35 +660,20 @@
     // ── i18n ────────────────────────────────────────────────────────
     const LOCALES = {
       en: {
-        badge: 'Live IP Intelligence',
-        line1: 'Discover Your',
-        line2: 'IP Intelligence',
-        subtitle: 'Instantly find the location, ISP, and network details of any IPv4/IPv6 address or domain name.',
+        mainTitle: 'IP-Du: Intelligent IP & Domain Purity Hub',
         placeholder: 'e.g. 8.8.8.8 or google.com',
-        searchBtn: 'Look Up',
-        searchHint: 'Supports IPv4, IPv6, and domain names',
-        myIp: 'Your IP Address',
-        result: 'Lookup Result',
-        detecting: 'Detecting your location…',
-        searching: 'Looking up…',
+        query: 'Query',
+        myIp: 'Your IP Address', result: 'Lookup Result',
         copy: 'Copy', copied: 'Copied!',
-        mapBtn: 'Map',
         noData: 'N/A',
-        errorTitle: 'Lookup Failed',
-        errorInvalid: 'Please enter a valid IP address or domain name.',
-        fields: {
-          ip: 'IP Address', version: 'IP Version', country: 'Country',
-          region: 'Region', city: 'City', timezone: 'Timezone',
-          coordinates: 'Coordinates', asn: 'ASN', org: 'Organization', isp: 'ISP',
-        },
-        apiTitle: 'API Reference',
-        thParam: 'Parameter', thType: 'Type', thRequired: 'Required', thDesc: 'Description',
-        tdOptional: 'Optional',
-        tdQDesc: 'IP address or domain to look up. Omit to look up the client\'s own IP.',
-        apiExampleLabel: 'Example Response',
-        rateInfo: 'Rate limit: 60 requests/min for API · 30 requests/min for page',
         securityTitle: 'Security & Purity',
         riskLabel: 'Risk Score',
+        factorLabels: {
+          IDC_KEYWORD_MATCH: 'Data center infrastructure detected',
+          PROXY_VPN_KEYWORD: 'Known proxy/VPN keywords found',
+          MISSING_CITY_DATA: 'Inconsistent geolocation (missing city)',
+          GENERIC_ORG_NAME: 'Generic or anonymous organization',
+        },
         typeLabels: {
           'Residential': 'Residential',
           'Data Center': 'Data Center / IDC',
@@ -685,34 +681,25 @@
           'Education': 'Education',
         },
         nativeIp: 'Native IP',
-        footerPowered: 'Powered by <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> &amp; <strong>IP-Du</strong>',
-        footerGithub: 'GitHub', footerApi: 'API', footerHealth: 'Health',
+        fields: {
+          asn: 'ASN', org: 'Organization', isp: 'ISP', ip: 'IP Address', version: 'Version', country: 'Country', region: 'Region', city: 'City', timezone: 'Timezone', coordinates: 'Coordinates'
+        }
       },
       'zh-CN': {
-        badge: '实时 IP 情报',
-        line1: '解析您的', line2: 'IP 地址情报',
-        subtitle: '即时查询任意 IPv4/IPv6 地址或域名的归属地、运营商及网络信息。',
+        mainTitle: 'IP-Du：全球全协议 IP 归属与深度纯净度检测中心',
         placeholder: '如 8.8.8.8 或 google.com',
-        searchBtn: '查询', searchHint: '支持 IPv4、IPv6 及域名',
-        myIp: '您的 IP 地址', result: '查询结果',
-        detecting: '正在检测您的位置…', searching: '查询中…',
+        query: '立即查询',
+        myIp: '您的 IP 地址', result: '解析结果',
         copy: '复制', copied: '已复制！',
-        mapBtn: '地图',
         noData: '暂无',
-        errorTitle: '查询失败', errorInvalid: '请输入有效的 IP 地址或域名。',
-        fields: {
-          ip: 'IP 地址', version: 'IP 版本', country: '国家 / 地区',
-          region: '省份 / 地区', city: '城市', timezone: '时区',
-          coordinates: '坐标', asn: 'ASN', org: '组织', isp: '运营商',
+        securityTitle: '安全与风险评估',
+        riskLabel: '风险评分',
+        factorLabels: {
+          IDC_KEYWORD_MATCH: '检测到数据中心或云基础设施',
+          PROXY_VPN_KEYWORD: '发现已知的代理或 VPN 关键字',
+          MISSING_CITY_DATA: '地理信息不完整（疑似跳板）',
+          GENERIC_ORG_NAME: '通用或匿名机构名称',
         },
-        apiTitle: 'API 文档',
-        thParam: '参数', thType: '类型', thRequired: '是否必填', thDesc: '说明',
-        tdOptional: '可选',
-        tdQDesc: '要查询的 IP 地址或域名，不填则默认查询请求方 IP。',
-        apiExampleLabel: '返回示例',
-        rateInfo: '频率限制：API 每分钟 60 次 · 页面每分钟 30 次',
-        securityTitle: '安全与纯净度',
-        riskLabel: '风险值',
         typeLabels: {
           'Residential': '住宅宽带',
           'Data Center': '机房 / IDC',
@@ -720,60 +707,61 @@
           'Education': '教育网',
         },
         nativeIp: '原生 IP',
-        footerPowered: '数据来源 <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a>，由 <strong>IP-Du</strong> 提供服务',
-        footerGithub: 'GitHub', footerApi: 'API', footerHealth: '健康检查',
+        fields: {
+          asn: 'ASN 编号', org: '所属机构', isp: '运营商', ip: 'IP 地址', version: '协议版本', country: '国家/地区', region: '省份/州', city: '城市', timezone: '时区', coordinates: '经纬度坐标'
+        }
       },
       'zh-TW': {
-        badge: '即時 IP 情報',
-        line1: '解析您的', line2: 'IP 位址情報',
-        subtitle: '即時查詢任意 IPv4/IPv6 位址或網域的位置、ISP 及網路資訊。',
+        mainTitle: 'IP-Du：全球全協議 IP 歸屬與深度純淨度檢測中心',
         placeholder: '如 8.8.8.8 或 google.com',
-        searchBtn: '查詢', searchHint: '支援 IPv4、IPv6 及網域名稱',
-        myIp: '您的 IP 位址', result: '查詢結果',
-        detecting: '正在偵測您的位置…', searching: '查詢中…',
+        query: '立即查詢',
+        myIp: '您的 IP 地址', result: '解析結果',
         copy: '複製', copied: '已複製！',
-        mapBtn: '地圖',
         noData: '暫無',
-        errorTitle: '查詢失敗', errorInvalid: '請輸入有效的 IP 位址或網域名稱。',
-        fields: {
-          ip: 'IP 位址', version: 'IP 版本', country: '國家 / 地區',
-          region: '縣市 / 地區', city: '城市', timezone: '時區',
-          coordinates: '座標', asn: 'ASN', org: '組織', isp: 'ISP',
+        securityTitle: '安全與風險評估',
+        riskLabel: '風險評分',
+        factorLabels: {
+          IDC_KEYWORD_MATCH: '檢測到數據中心或雲基礎設施',
+          PROXY_VPN_KEYWORD: '發現已知的代理或 VPN 關鍵字',
+          MISSING_CITY_DATA: '地理信息不完整（疑似跳板）',
+          GENERIC_ORG_NAME: '通用或匿名機構名稱',
         },
-        apiTitle: 'API 文件',
-        thParam: '參數', thType: '類型', thRequired: '是否必填', thDesc: '說明',
-        tdOptional: '選填',
-        tdQDesc: '要查詢的 IP 位址或網域，不填則預設查詢請求方 IP。',
-        apiExampleLabel: '回應範例',
-        rateInfo: '頻率限制：API 每分鐘 60 次 · 頁面每分鐘 30 次',
-        footerPowered: '資料來源 <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a>，由 <strong>IP-Du</strong> 提供服務',
-        footerGithub: 'GitHub', footerApi: 'API', footerHealth: '健康狀態',
+        typeLabels: {
+          'Residential': '住宅寬帶',
+          'Data Center': '機房 / IDC',
+          'Mobile': '移動網絡',
+          'Education': '教育網',
+        },
+        nativeIp: '原生 IP',
+        fields: {
+          asn: 'ASN 編號', org: '所屬機構', isp: '運營商', ip: 'IP 地址', version: '協議版本', country: '國家/地區', region: '省份/州', city: '城市', timezone: '時區', coordinates: '經緯度坐標'
+        }
       },
       ja: {
-        badge: 'リアルタイム IP インテリジェンス',
-        line1: 'IPアドレスを', line2: '解析する',
-        subtitle: 'IPv4/IPv6 アドレスやドメイン名の場所・ISP・ネットワーク情報を即座に確認できます。',
+        mainTitle: 'IP-Du: インテリジェント IP & ドメイン純度ハブ',
         placeholder: '例: 8.8.8.8 または google.com',
-        searchBtn: '検索', searchHint: 'IPv4、IPv6、ドメイン名に対応',
+        query: '検索',
         myIp: 'あなたのIPアドレス', result: '検索結果',
-        detecting: '位置を検出中…', searching: '検索中…',
         copy: 'コピー', copied: 'コピー済み！',
-        mapBtn: 'マップ',
         noData: 'N/A',
-        errorTitle: '検索失敗', errorInvalid: '有効なIPアドレスまたはドメインを入力してください。',
-        fields: {
-          ip: 'IPアドレス', version: 'IPバージョン', country: '国',
-          region: '地域', city: '都市', timezone: 'タイムゾーン',
-          coordinates: '座標', asn: 'ASN', org: '組織', isp: 'ISP',
+        securityTitle: 'セキュリティと純度',
+        riskLabel: 'リスクスコア',
+        factorLabels: {
+          IDC_KEYWORD_MATCH: 'データセンターインフラストラクチャを検出',
+          PROXY_VPN_KEYWORD: '既知のプロキシ/VPNキーワードが見つかりました',
+          MISSING_CITY_DATA: '不整合なジオロケーション（都市名欠落）',
+          GENERIC_ORG_NAME: '汎用または匿名組織',
         },
-        apiTitle: 'API ドキュメント',
-        thParam: 'パラメータ', thType: '型', thRequired: '必須', thDesc: '説明',
-        tdOptional: '任意',
-        tdQDesc: '検索するIPアドレスまたはドメイン名。省略した場合はクライアントIPを使用。',
-        apiExampleLabel: 'レスポンス例',
-        rateInfo: 'レート制限: API 毎分60回 · ページ 毎分30回',
-        footerPowered: '<a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> データ提供、<strong>IP-Du</strong> で運用',
-        footerGithub: 'GitHub', footerApi: 'API', footerHealth: 'ヘルスチェック',
+        typeLabels: {
+          'Residential': '住宅用ブロードバンド',
+          'Data Center': 'データセンター / IDC',
+          'Mobile': 'モバイルネットワーク',
+          'Education': '教育機関',
+        },
+        nativeIp: 'ネイティブ IP',
+        fields: {
+          asn: 'ASN', org: '組織', isp: 'ISP', ip: 'IPアドレス', version: 'バージョン', country: '国', region: '地域', city: '都市', timezone: 'タイムゾーン', coordinates: '座標'
+        }
       },
     };
 
@@ -810,27 +798,22 @@
     function applyLocale() {
       const L = t();
       document.documentElement.lang = lang;
-      document.getElementById('hero-badge').textContent    = L.badge;
-      document.getElementById('hero-line1').textContent    = L.line1;
-      document.getElementById('hero-line2').textContent    = L.line2;
-      document.getElementById('hero-subtitle').textContent = L.subtitle;
+      document.getElementById('hero-main-title').textContent = L.mainTitle;
       document.getElementById('search-input').placeholder  = L.placeholder;
-      document.getElementById('search-btn').textContent    = L.searchBtn;
-      document.getElementById('search-hint').textContent   = L.searchHint;
-      document.getElementById('api-title-label').childNodes[0].textContent = L.apiTitle + ' ';
-      document.getElementById('th-param').textContent      = L.thParam;
-      document.getElementById('th-type').textContent       = L.thType;
-      document.getElementById('th-required').textContent   = L.thRequired;
-      document.getElementById('th-desc').textContent       = L.thDesc;
-      document.getElementById('td-optional').textContent   = L.tdOptional;
-      document.getElementById('td-q-desc').textContent     = L.tdQDesc;
-      document.getElementById('api-example-label').textContent = L.apiExampleLabel;
-      document.getElementById('rate-info').textContent     = L.rateInfo;
-      document.getElementById('footer-powered').innerHTML  = L.footerPowered;
-      document.getElementById('footer-github').textContent = L.footerGithub;
-      document.getElementById('footer-api').textContent    = L.footerApi;
-      document.getElementById('footer-health').textContent = L.footerHealth;
-      document.title = 'IP-Du · ' + L.line2;
+      document.getElementById('search-btn').textContent    = L.query;
+      document.getElementById('api-title-label').childNodes[0].textContent = 'API Reference ';
+      document.getElementById('th-param').textContent      = 'Parameter';
+      document.getElementById('th-type').textContent       = 'Type';
+      document.getElementById('th-required').textContent   = 'Required';
+      document.getElementById('th-desc').textContent       = 'Description';
+      document.getElementById('td-optional').textContent   = 'Optional';
+      document.getElementById('td-q-desc').textContent     = 'IP address or domain to look up. Omit to look up the client\'s own IP.';
+      document.getElementById('api-example-label').textContent = 'Example Response';
+      document.getElementById('rate-info').textContent     = 'Rate limit: 60 requests/min for API · 30 requests/min for page';
+      document.getElementById('footer-github').textContent = 'GitHub';
+      document.getElementById('footer-api').textContent    = 'API';
+      document.getElementById('footer-health').textContent = 'Health';
+      document.title = 'IP-Du · IP Address Intelligence';
     }
     applyLocale();
 
@@ -849,15 +832,6 @@
       );
     }
 
-    // ── Country name lookup ─────────────────────────────────────────
-    const COUNTRY_ZH = { CN:'中国', US:'美国', JP:'日本', GB:'英国', DE:'德国', FR:'法国', CA:'加拿大', AU:'澳大利亚', KR:'韩国', SG:'新加坡', HK:'香港', TW:'台湾', RU:'俄罗斯', IN:'印度', BR:'巴西', MX:'墨西哥', NL:'荷兰', IT:'意大利', ES:'西班牙', SE:'瑞典', NO:'挪威', CH:'瑞士', PL:'波兰', TR:'土耳其', SA:'沙特阿拉伯', AE:'阿联酋', ZA:'南非', NG:'尼日利亚', EG:'埃及', AR:'阿根廷', CL:'智利', CO:'哥伦比亚', PH:'菲律宾', VN:'越南', TH:'泰国', ID:'印度尼西亚', MY:'马来西亚', PK:'巴基斯坦', BD:'孟加拉国', UA:'乌克兰', PL:'波兰' };
-
-    function localizedCountry(data) {
-      if (!data.countryCode) return data.country || t().noData;
-      if (lang === 'zh-CN' && COUNTRY_ZH[data.countryCode]) return COUNTRY_ZH[data.countryCode];
-      return data.country || data.countryCode || t().noData;
-    }
-
     // ── Render helpers ──────────────────────────────────────────────
     function dataField(label, value, mono) {
       const val = (value !== null && value !== undefined && value !== '')
@@ -874,7 +848,6 @@
     let lastIsMyIp  = false;
 
     function renderLoading(isSearch) {
-      const L = t();
       document.getElementById('result-section').innerHTML = `
         <div class="skeleton-card">
           <div class="skeleton sk-title"></div>
@@ -894,7 +867,7 @@
         <div class="error-card" role="alert">
           <div class="error-icon">⚠️</div>
           <div class="error-text">
-            <h3>${escHtml(t().errorTitle)}</h3>
+            <h3>Error</h3>
             <p>${escHtml(msg)}</p>
           </div>
         </div>`;
@@ -909,28 +882,23 @@
       const coords = (data.lat && data.lon)
         ? `${data.lat.toFixed(4)}, ${data.lon.toFixed(4)}`
         : null;
-      const mapUrl = (data.lat && data.lon)
-        ? `https://www.google.com/maps?q=${data.lat},${data.lon}`
-        : null;
-      const countryDisp = localizedCountry(data);
+      const countryDisp = data.country || data.countryCode || L.noData;
       const cityRegion  = [data.city, data.region].filter(Boolean).join(', ') || null;
 
       document.getElementById('result-section').innerHTML = `
-        <div class="result-card" role="region" aria-label="IP lookup result">
-          <div class="result-header">
+        <div class="dashboard-grid">
+          <!-- Hero Row -->
+          <div class="dash-card result-ip-hero anim-delay-1">
             <div class="result-ip-block">
-              <span class="result-label">${isMyIp ? L.myIp : L.result}</span>
-              <div class="result-ip">
-                <span id="ip-display">${escHtml(data.ip || '—')}</span>
-                ${data.version ? `<span class="ip-badge ${versionClass}">${escHtml(data.version)}</span>` : ''}
+              <span class="result-label" style="font-size:0.8rem">${isMyIp ? L.myIp : L.result}</span>
+              <div class="ip-main">
+                ${escHtml(data.ip || '—')}
+                <span class="ip-badge ${versionClass}">${escHtml(data.version)}</span>
               </div>
             </div>
             <div class="result-actions">
-              <button class="copy-btn" id="copy-ip-btn" title="${escHtml(L.copy)} IP">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
-                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
-                </svg>
+              <button class="copy-btn" id="copy-ip-btn" style="padding:10px 20px">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg>
                 <span id="copy-ip-label">${escHtml(L.copy)}</span>
               </button>
               ${mapUrl ? `<a class="map-btn" href="${escHtml(mapUrl)}" target="_blank" rel="noopener" title="View on map">
