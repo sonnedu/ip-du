@@ -590,68 +590,6 @@
         <!-- Populated by JS -->
       </section>
 
-      <!-- API Docs -->
-      <section class="api-section">
-        <div class="section-title" id="api-title-label">API Reference</div>
-        <div class="api-card">
-          <div class="api-card-header" id="api-toggle">
-            <div class="api-card-header-left">
-              <span class="method-badge">GET</span>
-              <span class="endpoint-text">/api/lookup</span>
-            </div>
-            <span class="toggle-icon" id="api-toggle-icon">
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-              </svg>
-            </span>
-          </div>
-          <div class="api-body" id="api-body">
-            <table class="params-table" id="api-params-table">
-              <thead>
-                <tr>
-                  <th id="th-param">Parameter</th>
-                  <th id="th-type">Type</th>
-                  <th id="th-required">Required</th>
-                  <th id="th-desc">Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span class="param-name">q</span></td>
-                  <td><span class="param-type">string</span></td>
-                  <td id="td-optional">Optional</td>
-                  <td id="td-q-desc">IP address or domain to look up. Omit to look up the client's own IP.</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <p class="data-key" style="margin-bottom:8px" id="api-example-label">Example Response</p>
-            <div class="code-block" id="example-code" style="position:relative">
-<button class="code-copy-btn" id="copy-example-btn">Copy</button><span id="example-json">{
-  "ip": "8.8.8.8",
-  "version": "IPv4",
-  "city": "Mountain View",
-  "region": "California",
-  "country": "United States",
-  "countryCode": "US",
-  "continent": "NA",
-  "lat": 37.386,
-  "lon": -122.0838,
-  "timezone": "America/Los_Angeles",
-  "asn": "AS15169",
-  "org": "Google LLC",
-  "isp": "Google LLC",
-  "source": "mmdb",
-  "query": "8.8.8.8",
-  "queryType": "ip"
-}</span></div>
-
-            <div class="rate-info" id="rate-info">
-              Rate limit: 60 requests/min for API · 30 requests/min for page
-            </div>
-          </div>
-        </div>
-      </section>
 
     </main>
 
@@ -821,15 +759,6 @@
       document.getElementById('hero-main-title').textContent = L.mainTitle;
       document.getElementById('search-input').placeholder  = L.placeholder;
       document.getElementById('search-btn').textContent    = L.query;
-      document.getElementById('api-title-label').childNodes[0].textContent = 'API Reference ';
-      document.getElementById('th-param').textContent      = 'Parameter';
-      document.getElementById('th-type').textContent       = 'Type';
-      document.getElementById('th-required').textContent   = 'Required';
-      document.getElementById('th-desc').textContent       = 'Description';
-      document.getElementById('td-optional').textContent   = 'Optional';
-      document.getElementById('td-q-desc').textContent     = 'IP address or domain to look up. Omit to look up the client\'s own IP.';
-      document.getElementById('api-example-label').textContent = 'Example Response';
-      document.getElementById('rate-info').textContent     = 'Rate limit: 60 requests/min for API · 30 requests/min for page';
       document.getElementById('footer-github').textContent = 'GitHub';
       document.getElementById('footer-api').textContent    = 'API';
       document.getElementById('footer-health').textContent = 'Health';
@@ -1056,24 +985,6 @@
       }
     });
 
-    // ── API Docs toggle ─────────────────────────────────────────────
-    document.getElementById('api-toggle').addEventListener('click', () => {
-      const body = document.getElementById('api-body');
-      const icon = document.getElementById('api-toggle-icon');
-      const open = body.classList.toggle('open');
-      icon.classList.toggle('open', open);
-    });
-
-    // Copy example JSON
-    document.getElementById('copy-example-btn').addEventListener('click', () => {
-      const L = t();
-      const text = document.getElementById('example-json').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copy-example-btn');
-        btn.textContent = L.copied;
-        setTimeout(() => { btn.textContent = L.copy; }, 2000);
-      });
-    });
 
     // ── Init ────────────────────────────────────────────────────────
     detectMyIp();
