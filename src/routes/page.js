@@ -36,4 +36,3 @@ pageRouter.get('/', async (c) => {
   return c.html(html);
 });
 
-});
