@@ -16,31 +16,38 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* ─── Design Tokens ─────────────────────────────────────────── */
     :root {
-      --bg:            #060c1a;
-      --bg-2:          #0d1733;
-      --card:          rgba(13, 23, 51, 0.7);
-      --card-hover:    rgba(13, 23, 51, 0.9);
-      --border:        rgba(56, 189, 248, 0.12);
-      --border-hover:  rgba(56, 189, 248, 0.3);
+      --bg:            #020617;
+      --bg-2:          #0f172a;
+      --card:          rgba(15, 23, 42, 0.65);
+      --card-deep:     rgba(15, 23, 42, 0.9);
+      --border:        rgba(148, 163, 184, 0.1);
+      --border-light:  rgba(56, 189, 248, 0.2);
       --accent:        #38bdf8;
       --accent-2:      #818cf8;
       --accent-g:      linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-      --accent-g-r:    linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
-      --text:          #e2e8f0;
+      --text:          #f8fafc;
       --text-dim:      #94a3b8;
       --text-muted:    #475569;
-      --success:       #34d399;
-      --warning:       #fbbf24;
-      --error:         #f87171;
-      --blur:          blur(24px);
-      --radius:        20px;
-      --radius-sm:     10px;
-      --radius-xs:     6px;
-      --shadow:        0 20px 60px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3);
-      --shadow-card:   0 4px 30px rgba(56,189,248,.05);
-      --transition:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --success:       #10b981;
+      --warning:       #f59e0b;
+      --error:         #ef4444;
+      --blur:          blur(20px);
+      --radius:        16px;
+      --radius-sm:     12px;
+      --shadow:        0 8px 32px rgba(0, 0, 0, 0.4);
+      --transition:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    [data-theme="light"] {
+      --bg:            #f8fafc;
+      --bg-2:          #f1f5f9;
+      --card:          rgba(255, 255, 255, 0.7);
+      --card-deep:     rgba(255, 255, 255, 0.95);
+      --border:        rgba(148, 163, 184, 0.2);
+      --border-light:  rgba(2, 132, 199, 0.2);
+      --text:          #0f172a;
+      --text-dim:      #475569;
+      --text-muted:    #94a3b8;
     }
     [data-theme="light"] {
       --bg:            #f0f4ff;
@@ -158,41 +165,43 @@
     .icon-btn:hover { border-color: var(--border-hover); color: var(--accent); transform: translateY(-1px); }
     .icon-btn svg { width: 16px; height: 16px; }
 
-    /* ─── Dashboard v2.0 ────────────────────────────────────────── */
-    .dashboard-grid {
+    /* ─── Nebula Layout ───────────────────────────────────────── */
+    .nebula-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-top: 24px;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      margin-top: 32px;
     }
-    .dash-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px;
-      backdrop-filter: var(--blur); transition: all var(--transition);
-      display: flex; flex-direction: column; gap: 16px;
+    .nebula-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      backdrop-filter: var(--blur);
+      transition: all var(--transition);
     }
-    .dash-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-    .dash-card-title {
-      font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px;
-    }
-    .dash-card-title svg { width: 14px; height: 14px; opacity: 0.6; }
-
-    .result-ip-hero {
-      grid-column: span 3; padding: 32px;
+    .nebula-card:hover { border-color: var(--border-light); }
+    .nebula-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      border: 1.5px solid var(--border);
+      font-size: 0.75rem; font-weight: 700; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.1em;
     }
-    .ip-main { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 800; }
+    .nebula-body { padding: 24px; }
 
-    .risk-reason-list {
-      margin-top: 12px; display: flex; flex-direction: column; gap: 6px;
+    .identity-box { display: flex; align-items: flex-start; gap: 24px; }
+    .ip-display {
+      font-family: 'JetBrains Mono', monospace; font-size: 3rem; font-weight: 800;
+      line-height: 1; letter-spacing: -2px;
     }
-    .risk-reason-item {
-      font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px;
-    }
-    .risk-reason-item::before {
-      content: '•'; color: var(--error); font-weight: bold;
+    .profile-meta { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
+    .stat-card {
+      background: rgba(255,255,255,0.03); border-radius: var(--radius-sm);
+      padding: 16px; border: 1px solid var(--border);
     }
 
     /* ─── Hero ──────────────────────────────────────────────────── */
@@ -891,77 +900,90 @@
       const mapUrl = (data.lat && data.lon)
         ? `https://www.bing.com/maps?cp=${data.lat}~${data.lon}&lvl=13`
         : null;
-      const countryDisp = data.country || data.countryCode || L.noData;
       const cityRegion  = [data.city, data.region].filter(Boolean).join(', ') || null;
 
       document.getElementById('result-section').innerHTML = `
-        <div class="dashboard-grid">
-          <!-- Hero Row -->
-          <div class="dash-card result-ip-hero anim-delay-1">
-            <div class="result-ip-block">
-              <span class="result-label" style="font-size:0.8rem">${isMyIp ? L.myIp : L.result}</span>
-              <div class="ip-main">
-                ${escHtml(data.ip || '—')}
-                <span class="ip-badge ${versionClass}">${escHtml(data.version)}</span>
-              </div>
-            </div>
-            <div class="result-actions">
-              <button class="copy-btn" id="copy-ip-btn" style="padding:10px 20px">
-                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg>
-                <span id="copy-ip-label">${escHtml(L.copy)}</span>
-              </button>
-              ${mapUrl ? `<a class="map-btn" href="${escHtml(mapUrl)}" target="_blank" rel="noopener" title="View on map">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                </svg>
-                ${escHtml(L.mapBtn)}
-              </a>` : ''}
-            </div>
-          </div>
-
-          <div class="result-location">
-            <div class="country-flag" aria-hidden="true">${flagEmoji(data.countryCode)}</div>
-            <div>
-              <div class="country-name">${escHtml(countryDisp)}</div>
-              ${cityRegion ? `<div class="city-name">${escHtml(cityRegion)}</div>` : ''}
-            </div>
-          </div>
-
-          <div class="data-grid">
-            ${dataField(L.fields.city,        data.city)}
-            ${dataField(L.fields.region,      data.region)}
-            ${dataField(L.fields.timezone,    data.timezone)}
-            ${dataField(L.fields.coordinates, coords, true)}
-            ${dataField(L.fields.asn,         data.asn, true)}
-            ${dataField(L.fields.isp,         data.isp)}
-            ${dataField(L.fields.org,         data.org)}
-            ${dataField(L.fields.version,     data.version)}
-          </div>
-
-          <!-- Security Section -->
-          <div class="security-section">
-            <div class="section-title" style="margin-bottom:0">${escHtml(L.securityTitle)}</div>
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px">
-              <div class="risk-meter-wrap">
-                <div class="security-header">
-                  <span class="data-key" style="margin:0">${escHtml(L.riskLabel)}</span>
-                  <div class="risk-score-text" style="color:${getRiskColor(data.risk)}">${data.risk}<span>/100</span></div>
-                </div>
-                <div class="risk-meter-bg">
-                  <div class="risk-meter-bar" style="width:${data.risk}%; background:${getRiskColor(data.risk)}"></div>
-                </div>
-              </div>
-
+        <div class="nebula-grid anim-delay-1">
+          <!-- Main Matrix -->
+          <div class="nebula-card">
+            <div class="nebula-header">
+              <span>Identity Matrix // ${escHtml(data.ip)}</span>
               <div class="badge-group">
-                <div class="type-badge ${data.type === 'Data Center' ? 'idc' : 'residential'}">
-                  ${data.type === 'Data Center' ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1h10v3H5V6zm10 5H5v3h10v-3z" clip-rule="evenodd"/></svg>' : '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>'}
-                  ${escHtml(L.typeLabels[data.type] || data.type)}
-                </div>
-                ${data.isNative ? `<div class="type-badge native">
-                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                  ${escHtml(L.nativeIp)}
-                </div>` : ''}
+                <span class="type-badge ${versionClass}">${escHtml(data.version)}</span>
+                <span class="type-badge ${data.type === 'Data Center' ? 'idc' : 'residential'}">
+                   ${escHtml(L.typeLabels[data.type] || data.type)}
+                </span>
+                ${data.isNative ? `<span class="type-badge native">${escHtml(L.nativeIp)}</span>` : ''}
               </div>
+            </div>
+            <div class="nebula-body">
+              <div class="identity-box">
+                <div class="country-flag" style="font-size:4rem">${flagEmoji(data.countryCode)}</div>
+                <div style="flex:1">
+                  <div class="ip-display">${escHtml(data.ip)}</div>
+                  <div style="font-size:1.1rem; font-weight:600; color:var(--text-dim); margin-top:8px">
+                    ${escHtml(data.country || data.countryCode)} // ${escHtml(cityRegion || 'Unknown Region')}
+                  </div>
+                </div>
+                <div class="result-actions">
+                  <button class="icon-btn" id="copy-ip-btn" style="width:auto; padding:0 16px; height:40px; font-weight:600">
+                    <span id="copy-ip-label">${escHtml(L.copy)}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="stat-row">
+                 <div class="stat-card">
+                    <div class="data-key" style="margin-bottom:8px">Provider Intelligence</div>
+                    ${dataField(L.fields.isp, data.isp)}
+                    ${dataField(L.fields.org, data.org)}
+                    ${dataField(L.fields.asn, data.asn, true)}
+                 </div>
+                 <div class="stat-card">
+                    <div class="data-key" style="margin-bottom:8px">Temporal & Geogrid</div>
+                    ${dataField(L.fields.timezone, data.timezone)}
+                    ${dataField(L.fields.coordinates, coords, true)}
+                    <a href="${escHtml(mapUrl)}" target="_blank" class="map-btn" style="margin-top:12px; width:100%; justify-content:center">
+                      ${escHtml(L.mapBtn)}
+                    </a>
+                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Intelligence -->
+          <div style="display:flex; flex-direction:column; gap:24px">
+            <!-- Risk Gauge -->
+            <div class="nebula-card">
+              <div class="nebula-header">Risk Assessment</div>
+              <div class="nebula-body">
+                <div style="text-align:center; padding:10px 0">
+                   <div style="font-size:4rem; font-weight:800; color:${getRiskColor(data.risk)}; line-height:1">
+                     ${data.risk}
+                   </div>
+                   <div class="data-key" style="margin-top:8px">${L.riskLabel} / 100</div>
+                </div>
+                <div class="risk-meter-bg" style="margin-top:20px; height:6px">
+                   <div class="risk-meter-bar" style="width:${data.risk}%; background:${getRiskColor(data.risk)}"></div>
+                </div>
+                <div class="risk-reason-list" style="margin-top:24px">
+                   ${(data.riskFactors || []).map(f => `
+                     <div class="risk-reason-item" style="padding:10px; background:rgba(255,255,255,0.02); border-radius:8px">
+                       ${escHtml(L.factorLabels[f] || f)}
+                     </div>
+                   `).join('')}
+                   ${data.risk < 20 ? `<div class="risk-reason-item" style="color:var(--success)">✅ Verified Residential Signal</div>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <div class="nebula-card" style="opacity:0.6; pointer-events:none">
+               <div class="nebula-header">Network Tags</div>
+               <div class="nebula-body" style="display:flex; gap:8px; flex-wrap:wrap">
+                  <span class="type-badge">TLS_CLIENT</span>
+                  <span class="type-badge">TCP_MSS_MATCH</span>
+                  <span class="type-badge">MTU_NORMAL</span>
+               </div>
             </div>
           </div>
         </div>`;
