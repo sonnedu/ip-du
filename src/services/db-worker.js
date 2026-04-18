@@ -133,27 +133,51 @@ export function lookupIpFromCf(ip, cf) {
 }
 
 function formatMmdbResult(ip, city, asn) {
-  const countryNames = city?.country?.names ?? {};
-  const cityNames    = city?.city?.names    ?? {};
-  const subdivisions = city?.subdivisions   ?? [];
-  const location     = city?.location       ?? {};
+  // DB-IP formats (sapics/ip-location-db) are often flat.
+  // MaxMind formats are nested under Names.
+
+  // 1. Geolocation
+  let cityName    = city?.city;
+  let regionName  = city?.state1;
+  let countryCode = city?.country_code;
+  let latitude    = city?.latitude;
+  let longitude   = city?.longitude;
+
+  // MaxMind style fallback
+  if (typeof cityName === 'object') cityName = cityName.names?.en;
+  if (city?.subdivisions)          regionName = city.subdivisions[0]?.names?.en;
+  if (city?.country)               countryCode = city.country.iso_code;
+  if (city?.location) {
+    latitude  = city.location.latitude;
+    longitude = city.location.longitude;
+  }
+
+  // 2. Country Name fallback
+  let countryName = city?.country?.names?.en || null;
+  if (!countryName && countryCode) {
+    const codes = { 'US': 'United States', 'CN': 'China', 'JP': 'Japan', 'TW': 'Taiwan' };
+    countryName = codes[countryCode] || countryCode;
+  }
+
+  // 3. ASN
+  const asnNumber = asn?.autonomous_system_number || city?.autonomous_system_number;
+  const asnOrg    = asn?.autonomous_system_organization || city?.autonomous_system_organization;
 
   return {
     ip,
     version:     ip.includes(':') ? 'IPv6' : 'IPv4',
-    city:        cityNames.en            || null,
-    region:      subdivisions[0]?.names?.en || null,
-    country:     countryNames.en         || null,
-    countryCode: city?.country?.iso_code || null,
-    continent:   city?.continent?.code   || null,
-    lat:         location.latitude       ?? null,
-    lon:         location.longitude      ?? null,
-    timezone:    location.time_zone      || null,
-    asn:         asn?.autonomous_system_number
-                   ? `AS${asn.autonomous_system_number}`
-                   : null,
-    org:         asn?.autonomous_system_organization || null,
-    isp:         asn?.autonomous_system_organization || null,
+    city:        cityName    || null,
+    region:      regionName  || null,
+    country:     countryName || null,
+    countryCode: countryCode || null,
+    continent:   city?.continent?.code || null,
+    lat:         latitude  ?? null,
+    lon:         longitude ?? null,
+    timezone:    city?.location?.time_zone || null,
+    asn:         asnNumber ? `AS${asnNumber}` : null,
+    org:         asnOrg || null,
+    isp:         asnOrg || null,
     source:      'mmdb',
   };
 }
+
