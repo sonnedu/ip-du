@@ -141,19 +141,40 @@ export function formatResult(ip, city, asn) {
   let riskScore = 0;
   const orgLower = (asnOrg || '').toLowerCase();
 
-  const idcKeywords = ['cloud', 'hosting', 'datacenter', 'server', 'vps', 'amazon', 'google', 'microsoft', 'azure', 'digitalocean', 'linode', 'vultr', 'hetzner', 'ovh', 'oracle', 'alibaba', 'tencent', 'host', 'choopa', 'zenlayer'];
-  const mobileKeywords = ['mobile', 'wireless', 'telekom', 'cellular', 'vodafone', 't-mobile'];
+  // More comprehensive IDC/Hosting Keywords
+  const idcKeywords = [
+    'cloud', 'hosting', 'datacenter', 'server', 'vps', 'amazon', 'google', 'microsoft', 'azure', 'digitalocean', 'linode', 'vultr', 'hetzner', 'ovh', 'oracle', 'alibaba', 'tencent', 'host', 'choopa', 'zenlayer',
+    'cdn', 'akamai', 'fastly', 'infrastructure', 'compute', 'network', 'telecom', 'communications', 'backbone', 'github', 'bitbucket', 'gitlab', 'heroku', 'netlify', 'vercel', 'scaleway', 'packet', 'equinix',
+    'leaseweb', 'clouvider', 'i3d', 'm247', 'fathom', 'quadranet', 'sharktech', 'psychz', 'cogent', 'hurricane', 'level3', 'tata', 'pccw', 'ntt', 'telia', 'retn', 'globenet', 'seacom', 'liquid', 'mainone',
+    'anonymous', 'proxy', 'vpn', 'dedicated', 'nodes', 'relay', 'tor', 'exit', 'service', 'solutions', 'technologies', 'bandwidth'
+  ];
+
+  // More comprehensive Mobile Keywords
+  const mobileKeywords = ['mobile', 'wireless', 'telekom', 'cellular', 'vodafone', 't-mobile', 'o2', 'telefonica', 'verizon', 'orange', 'china mobile', 'china unicom', 'unlimited'];
+
+  // Corporate Keywords
+  const corpKeywords = ['inc', 'corporation', 'corp', 'limited', 'ltd', 'company', 'office', 'branch', 'enterprise', 'technologies', 'solutions'];
 
   if (idcKeywords.some(k => orgLower.includes(k))) {
     usageType = 'Data Center';
-    riskScore = 60 + Math.floor(Math.random() * 20); // Base high risk for IDC
+    riskScore = 55 + Math.floor(Math.random() * 25);
   } else if (mobileKeywords.some(k => orgLower.includes(k))) {
     usageType = 'Mobile';
-    riskScore = 5 + Math.floor(Math.random() * 10);
-  } else if (orgLower.includes('university') || orgLower.includes('school')) {
+    riskScore = 2 + Math.floor(Math.random() * 8);
+  } else if (orgLower.includes('university') || orgLower.includes('school') || orgLower.includes('college') || orgLower.includes('edu')) {
     usageType = 'Education';
-    riskScore = 10;
+    riskScore = 8;
+  } else if (corpKeywords.some(k => orgLower.includes(k)) && !orgLower.includes('telecom')) {
+    // If it's a "Company" but not a "Telecom/ISP", it's likely a business/corporate IP
+    usageType = 'Business';
+    riskScore = 15 + Math.floor(Math.random() * 10);
   }
+
+  // Bonus risk for data center + no city/region info (highly likely proxy/vpn)
+  if (usageType === 'Data Center' && !cityName) {
+    riskScore += 15;
+  }
+  if (riskScore > 100) riskScore = 100;
 
   // 5. Timezone Fix
   let timezone = city?.location?.time_zone || city?.timezone;
