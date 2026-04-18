@@ -11,6 +11,7 @@
  */
 
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
 import { loadConfig } from './utils/config.js';
 import { clientIpMiddleware } from './middleware/client-ip.js';
@@ -31,6 +32,15 @@ const app = new Hono();
 // Global middleware
 app.use('*', clientIpMiddleware());
 app.use('/api/*', corsMiddleware());
+
+// Static files (favicons, manifests, etc.)
+app.use('/favicon.ico', serveStatic({ path: './public/favicon.ico' }));
+app.use('/apple-touch-icon.png', serveStatic({ path: './public/apple-touch-icon.png' }));
+app.use('/favicon-32x32.png', serveStatic({ path: './public/favicon-32x32.png' }));
+app.use('/favicon-16x16.png', serveStatic({ path: './public/favicon-16x16.png' }));
+app.use('/android-chrome-192x192.png', serveStatic({ path: './public/android-chrome-192x192.png' }));
+app.use('/android-chrome-512x512.png', serveStatic({ path: './public/android-chrome-512x512.png' }));
+app.use('/site.webmanifest', serveStatic({ path: './public/site.webmanifest' }));
 
 // Rate limiting (separate buckets for page and API)
 app.use('/',     createRateLimiter(config.rateLimit.page, 'page'));
