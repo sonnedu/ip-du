@@ -681,6 +681,7 @@
           'Education': 'Education',
         },
         nativeIp: 'Native IP',
+        mapBtn: 'Map',
         fields: {
           asn: 'ASN', org: 'Organization', isp: 'ISP', ip: 'IP Address', version: 'Version', country: 'Country', region: 'Region', city: 'City', timezone: 'Timezone', coordinates: 'Coordinates'
         }
@@ -707,6 +708,7 @@
           'Education': '教育网',
         },
         nativeIp: '原生 IP',
+        mapBtn: '地图',
         fields: {
           asn: 'ASN 编号', org: '所属机构', isp: '运营商', ip: 'IP 地址', version: '协议版本', country: '国家/地区', region: '省份/州', city: '城市', timezone: '时区', coordinates: '经纬度坐标'
         }
@@ -733,6 +735,7 @@
           'Education': '教育網',
         },
         nativeIp: '原生 IP',
+        mapBtn: '地圖',
         fields: {
           asn: 'ASN 編號', org: '所屬機構', isp: '運營商', ip: 'IP 地址', version: '協議版本', country: '國家/地區', region: '省份/州', city: '城市', timezone: '時區', coordinates: '經緯度坐標'
         }
@@ -759,6 +762,7 @@
           'Education': '教育機関',
         },
         nativeIp: 'ネイティブ IP',
+        mapBtn: 'マップ',
         fields: {
           asn: 'ASN', org: '組織', isp: 'ISP', ip: 'IPアドレス', version: 'バージョン', country: '国', region: '地域', city: '都市', timezone: 'タイムゾーン', coordinates: '座標'
         }
@@ -841,7 +845,9 @@
     }
 
     function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      if (str === null || str === undefined) return '';
+      const s = String(str);
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
     let lastResult  = null;
