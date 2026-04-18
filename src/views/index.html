@@ -143,18 +143,44 @@
 
     .nav-controls { display: flex; align-items: center; gap: 10px; }
 
-    .lang-select {
-      appearance: none; background: var(--card); color: var(--text);
-      border: 1px solid var(--border); border-radius: var(--radius-xs);
-      padding: 6px 28px 6px 10px; font-size: 0.8rem; font-family: inherit;
-      cursor: pointer; outline: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2394a3b8' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 6px center; background-size: 14px;
-      transition: border-color var(--transition);
+    /* ─── Custom Dropdown ───────────────────────────────────────── */
+    .custom-select { position: relative; width: 130px; }
+    .select-trigger {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 8px 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500;
+      color: var(--text); cursor: pointer; transition: all var(--transition);
+      user-select: none;
     }
-    .lang-select:hover { border-color: var(--border-hover); }
-    .lang-select option { background: #1e293b; }
-    [data-theme="light"] .lang-select option { background: #fff; color: #0f172a; }
+    .select-trigger:hover { border-color: var(--border-light); background: rgba(255,255,255,0.02); }
+    .select-trigger.open { border-color: var(--accent); }
+    .select-arrow {
+      width: 14px; height: 14px; color: var(--text-dim);
+      transition: transform var(--transition);
+    }
+    .select-trigger.open .select-arrow { transform: rotate(180deg); color: var(--accent); }
+
+    .select-options {
+      position: absolute; top: calc(100% + 8px); right: 0; width: 160px;
+      background: var(--card-deep); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); backdrop-filter: var(--blur);
+      box-shadow: var(--shadow); z-index: 1000;
+      opacity: 0; pointer-events: none; transform: translateY(10px) scale(0.95);
+      transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+      overflow: hidden;
+    }
+    .select-options.show { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+    .select-option {
+      padding: 10px 14px; font-size: 0.82rem; color: var(--text-dim);
+      cursor: pointer; display: flex; align-items: center; gap: 10px;
+      transition: all var(--transition);
+    }
+    .select-option:hover { background: rgba(56,189,248,0.1); color: var(--text); }
+    .select-option.selected { color: var(--accent); font-weight: 600; background: rgba(56,189,248,0.05); }
+
+    .option-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+    .select-option.selected .option-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
 
     .icon-btn {
       display: flex; align-items: center; justify-content: center;
@@ -543,12 +569,20 @@
       <div class="nav-inner">
         <a href="/" class="logo">IP-Du</a>
         <div class="nav-controls">
-          <select class="lang-select" id="lang-select">
-            <option value="en">English</option>
-            <option value="zh-CN">简体中文</option>
-            <option value="zh-TW">繁體中文</option>
-            <option value="ja">日本語</option>
-          </select>
+          <div class="custom-select" id="lang-custom-select">
+            <button class="select-trigger" id="lang-trigger">
+              <span id="current-lang-text">English</span>
+              <svg class="select-arrow" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <div class="select-options" id="lang-options">
+              <div class="select-option" data-value="en"><span class="option-dot"></span>English</div>
+              <div class="select-option" data-value="zh-CN"><span class="option-dot"></span>简体中文</div>
+              <div class="select-option" data-value="zh-TW"><span class="option-dot"></span>繁體中文</div>
+              <div class="select-option" data-value="ja"><span class="option-dot"></span>日本語</div>
+            </div>
+          </div>
           <button class="icon-btn" id="theme-btn">
             <svg id="theme-icon-dark" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
             <svg id="theme-icon-light" viewBox="0 0 20 20" fill="currentColor" style="display:none"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 10-1.414 1.414l.707.707zM3 11a1 1 0 100-2H2a1 1 0 100 2h1z" clip-rule="evenodd"/></svg>
@@ -748,8 +782,44 @@
     let lang = Object.keys(LOCALES).find(k => navLang.startsWith(k.split('-')[0]) && LOCALES[k]) || 'en';
     if (storedLang && LOCALES[storedLang]) lang = storedLang;
 
-    const langSelect = document.getElementById('lang-select');
-    langSelect.value = lang;
+    // ── Custom Dropdown Logic ───────────────────────────────────────
+    const trigger = document.getElementById('lang-trigger');
+    const optionsCont = document.getElementById('lang-options');
+    const options = document.querySelectorAll('.select-option');
+    const triggerText = document.getElementById('current-lang-text');
+
+    function updateDropdownUI() {
+      const selectedOption = Array.from(options).find(opt => opt.dataset.value === lang);
+      if (selectedOption) {
+        options.forEach(opt => opt.classList.remove('selected'));
+        selectedOption.classList.add('selected');
+        triggerText.textContent = selectedOption.textContent;
+      }
+    }
+    updateDropdownUI();
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      trigger.classList.toggle('open');
+      optionsCont.classList.toggle('show');
+    });
+
+    options.forEach(opt => {
+      opt.addEventListener('click', () => {
+        lang = opt.dataset.value;
+        localStorage.setItem('ipdu-lang', lang);
+        updateDropdownUI();
+        applyLocale();
+        trigger.classList.remove('open');
+        optionsCont.classList.remove('show');
+        if (lastResult) renderResult(lastResult, lastIsMyIp);
+      });
+    });
+
+    document.addEventListener('click', () => {
+      trigger.classList.remove('open');
+      optionsCont.classList.remove('show');
+    });
 
     function t() { return LOCALES[lang] || LOCALES.en; }
 
@@ -987,6 +1057,7 @@
 
 
     // ── Init ────────────────────────────────────────────────────────
+    applyLocale();
     detectMyIp();
   })();
   </script>
