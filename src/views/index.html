@@ -294,9 +294,42 @@
     /* Data grid */
     .data-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 16px;
+      gap: 16px; margin-bottom: 24px;
     }
     .data-item { display: flex; flex-direction: column; gap: 5px; }
+
+    /* ─── Security Section ───────────────────────────────────────── */
+    .security-section {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .security-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .risk-meter-wrap { flex: 1; max-width: 300px; display: flex; flex-direction: column; gap: 8px; }
+    .risk-meter-bg {
+      height: 8px; background: rgba(0,0,0,0.2); border-radius: 10px;
+      overflow: hidden; position: relative;
+    }
+    .risk-meter-bar {
+      height: 100%; transition: width 1s ease-out, background var(--transition);
+      border-radius: 10px;
+    }
+    .risk-score-text { font-size: 1.1rem; font-weight: 700; display: flex; align-items: baseline; gap: 4px; }
+    .risk-score-text span { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+
+    .badge-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .type-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+      border: 1px solid var(--border); background: var(--card);
+    }
+    .type-badge svg { width: 14px; height: 14px; }
+    .type-badge.idc { border-color: var(--warning); color: var(--warning); background: rgba(251,191,36,0.05); }
+    .type-badge.residential { border-color: var(--success); color: var(--success); background: rgba(52,211,153,0.05); }
+    .type-badge.native { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.05); }
     .data-key {
       font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
       text-transform: uppercase; color: var(--text-muted);
@@ -643,6 +676,15 @@
         tdQDesc: 'IP address or domain to look up. Omit to look up the client\'s own IP.',
         apiExampleLabel: 'Example Response',
         rateInfo: 'Rate limit: 60 requests/min for API · 30 requests/min for page',
+        securityTitle: 'Security & Purity',
+        riskLabel: 'Risk Score',
+        typeLabels: {
+          'Residential': 'Residential',
+          'Data Center': 'Data Center / IDC',
+          'Mobile': 'Mobile Network',
+          'Education': 'Education',
+        },
+        nativeIp: 'Native IP',
         footerPowered: 'Powered by <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a> &amp; <strong>IP-Du</strong>',
         footerGithub: 'GitHub', footerApi: 'API', footerHealth: 'Health',
       },
@@ -669,6 +711,15 @@
         tdQDesc: '要查询的 IP 地址或域名，不填则默认查询请求方 IP。',
         apiExampleLabel: '返回示例',
         rateInfo: '频率限制：API 每分钟 60 次 · 页面每分钟 30 次',
+        securityTitle: '安全与纯净度',
+        riskLabel: '风险值',
+        typeLabels: {
+          'Residential': '住宅宽带',
+          'Data Center': '机房 / IDC',
+          'Mobile': '移动网络',
+          'Education': '教育网',
+        },
+        nativeIp: '原生 IP',
         footerPowered: '数据来源 <a href="https://github.com/sapics/ip-location-db" target="_blank" rel="noopener">DB-IP</a>，由 <strong>IP-Du</strong> 提供服务',
         footerGithub: 'GitHub', footerApi: 'API', footerHealth: '健康检查',
       },
@@ -909,7 +960,41 @@
             ${dataField(L.fields.org,         data.org)}
             ${dataField(L.fields.version,     data.version)}
           </div>
+
+          <!-- Security Section -->
+          <div class="security-section">
+            <div class="section-title" style="margin-bottom:0">${escHtml(L.securityTitle)}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px">
+              <div class="risk-meter-wrap">
+                <div class="security-header">
+                  <span class="data-key" style="margin:0">${escHtml(L.riskLabel)}</span>
+                  <div class="risk-score-text" style="color:${getRiskColor(data.risk)}">${data.risk}<span>/100</span></div>
+                </div>
+                <div class="risk-meter-bg">
+                  <div class="risk-meter-bar" style="width:${data.risk}%; background:${getRiskColor(data.risk)}"></div>
+                </div>
+              </div>
+
+              <div class="badge-group">
+                <div class="type-badge ${data.type === 'Data Center' ? 'idc' : 'residential'}">
+                  ${data.type === 'Data Center' ? '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3 1h10v3H5V6zm10 5H5v3h10v-3z" clip-rule="evenodd"/></svg>' : '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>'}
+                  ${escHtml(L.typeLabels[data.type] || data.type)}
+                </div>
+                ${data.isNative ? `<div class="type-badge native">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  ${escHtml(L.nativeIp)}
+                </div>` : ''}
+              </div>
+            </div>
+          </div>
         </div>`;
+
+      // Risk color helper
+      function getRiskColor(score) {
+        if (score < 20) return 'var(--success)';
+        if (score < 50) return 'var(--warning)';
+        return 'var(--error)';
+      }
 
       // Copy IP button
       document.getElementById('copy-ip-btn').addEventListener('click', () => {

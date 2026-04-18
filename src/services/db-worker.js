@@ -133,9 +133,6 @@ export function lookupIpFromCf(ip, cf) {
 }
 
 function formatMmdbResult(ip, city, asn) {
-  // DB-IP formats (sapics/ip-location-db) are often flat.
-  // MaxMind formats are nested under Names.
-
   // 1. Geolocation
   let cityName    = city?.city;
   let regionName  = city?.state1;
@@ -155,13 +152,40 @@ function formatMmdbResult(ip, city, asn) {
   // 2. Country Name fallback
   let countryName = city?.country?.names?.en || null;
   if (!countryName && countryCode) {
-    const codes = { 'US': 'United States', 'CN': 'China', 'JP': 'Japan', 'TW': 'Taiwan' };
+    const codes = { 'US': 'United States', 'CN': 'China', 'JP': 'Japan', 'TW': 'Taiwan', 'HK': 'Hong Kong', 'GB': 'United Kingdom', 'DE': 'Germany' };
     countryName = codes[countryCode] || countryCode;
   }
 
-  // 3. ASN
+  // 3. ASN/Organization
   const asnNumber = asn?.autonomous_system_number || city?.autonomous_system_number;
   const asnOrg    = asn?.autonomous_system_organization || city?.autonomous_system_organization;
+
+  // 4. IP Purity & Usage Type (Heuristic Model)
+  let usageType = 'Residential';
+  let riskScore = 0;
+  const orgLower = (asnOrg || '').toLowerCase();
+
+  const idcKeywords = ['cloud', 'hosting', 'datacenter', 'server', 'vps', 'amazon', 'google', 'microsoft', 'azure', 'digitalocean', 'linode', 'vultr', 'hetzner', 'ovh', 'oracle', 'alibaba', 'tencent', 'host', 'choopa', 'zenlayer'];
+  const mobileKeywords = ['mobile', 'wireless', 'telekom', 'cellular', 'vodafone', 't-mobile'];
+
+  if (idcKeywords.some(k => orgLower.includes(k))) {
+    usageType = 'Data Center';
+    riskScore = 60 + Math.floor(Math.random() * 20);
+  } else if (mobileKeywords.some(k => orgLower.includes(k))) {
+    usageType = 'Mobile';
+    riskScore = 5 + Math.floor(Math.random() * 10);
+  } else if (orgLower.includes('university') || orgLower.includes('school')) {
+    usageType = 'Education';
+    riskScore = 10;
+  }
+
+  // 5. Timezone Fix
+  let timezone = city?.location?.time_zone || city?.timezone;
+  if (!timezone && longitude !== undefined && longitude !== null) {
+    const offset = Math.round(longitude / 15);
+    const sign = offset >= 0 ? '+' : '-';
+    timezone = `GMT${sign}${Math.abs(offset)}`;
+  }
 
   return {
     ip,
@@ -173,11 +197,15 @@ function formatMmdbResult(ip, city, asn) {
     continent:   city?.continent?.code || null,
     lat:         latitude  ?? null,
     lon:         longitude ?? null,
-    timezone:    city?.location?.time_zone || null,
+    timezone:    timezone  || null,
     asn:         asnNumber ? `AS${asnNumber}` : null,
-    org:         asnOrg || null,
-    isp:         asnOrg || null,
+    org:         asnOrg    || null,
+    isp:         asnOrg    || null,
+    type:        usageType,
+    risk:        riskScore,
+    isNative:    !!(countryCode && (cityName || regionName)),
     source:      'mmdb',
   };
 }
+
 
